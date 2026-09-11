@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432 432" width="432" height="432">
+  <defs>
+    <radialGradient id="bgGlow1" cx="15%" cy="5%" r="55%">
+      <stop offset="0%" stop-color="#35E0C0" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#35E0C0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bgGlow2" cx="90%" cy="15%" r="50%">
+      <stop offset="0%" stop-color="#5B8CFF" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#5B8CFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cloudGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#35E0C0" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#1E7F6F" stop-opacity="0.85"/>
+    </linearGradient>
+    <linearGradient id="wickGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EAFBF7"/>
+      <stop offset="100%" stop-color="#35E0C0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- background -->
+  <rect width="432" height="432" rx="96" fill="#0A0C10"/>
+  <rect width="432" height="432" rx="96" fill="url(#bgGlow1)"/>
+  <rect width="432" height="432" rx="96" fill="url(#bgGlow2)"/>
+  <rect x="1" y="1" width="430" height="430" rx="95" fill="none" stroke="#232833" stroke-width="2"/>
+
+  <g transform="translate(216,216) scale(0.85) translate(-216,-216)">
+  <!-- Ichimoku kumo (cloud) band -->
+  <path d="M 90 268
+           C 130 236, 170 292, 216 258
+           C 262 224, 300 270, 342 244
+           L 342 300
+           C 300 326, 262 280, 216 314
+           C 170 348, 130 292, 90 324
+           Z"
+        fill="url(#cloudGrad)" opacity="0.9"/>
+
+  <path d="M 90 268
+           C 130 236, 170 292, 216 258
+           C 262 224, 300 270, 342 244"
+        fill="none" stroke="#8FF3E0" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- Breakout candlesticks -->
+  <g stroke-linecap="round">
+    <line x1="140" y1="190" x2="140" y2="230" stroke="#5B8CFF" stroke-width="6"/>
+    <rect x="130" y="198" width="20" height="24" rx="3" fill="#5B8CFF"/>
+
+    <line x1="180" y1="168" x2="180" y2="216" stroke="#5B8CFF" stroke-width="6"/>
+    <rect x="170" y="176" width="20" height="28" rx="3" fill="#5B8CFF"/>
+
+    <line x1="252" y1="96" x2="252" y2="220" stroke="url(#wickGrad)" stroke-width="9"/>
+    <rect x="236" y="112" width="32" height="86" rx="5" fill="url(#wickGrad)"/>
+  </g>
+
+  <path d="M 300 150 L 340 110 M 340 110 L 340 138 M 340 110 L 312 110"
+        fill="none" stroke="#F5A623" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

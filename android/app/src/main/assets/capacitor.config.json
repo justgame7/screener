@@ -1,0 +1,9 @@
+{
+	"appId": "com.tradesphere.screener",
+	"appName": "Screener",
+	"webDir": "www",
+	"backgroundColor": "#0A0C10",
+	"android": {
+		"backgroundColor": "#0A0C10"
+	}
+}

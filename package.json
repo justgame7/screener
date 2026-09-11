@@ -1,0 +1,17 @@
+{
+  "name": "screener",
+  "version": "1.0.0",
+  "description": "Ichimoku Breakout Screener - Android app",
+  "scripts": {
+    "sync": "cap sync android",
+    "open": "cap open android",
+    "build:android": "cd android && ./gradlew assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2"
+  }
+}
