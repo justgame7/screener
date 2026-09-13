@@ -622,6 +622,481 @@
     line-height:1.6;
     padding:6px 0;
   }
+
+
+  /* ==================== Custom Screens (ported from screener.html) ==================== */
+
+  .screen-match-link{text-align:center;margin-top:8px;}
+
+  .screen-match-subtitle{margin:2px 0 0;color:var(--faint);font:11px var(--font-mono);}
+
+  .screen-match-ict-toggle{
+    display:flex;align-items:center;gap:7px;margin:12px 0 0;cursor:pointer;user-select:none;
+    font:600 11.5px var(--font-mono);color:var(--muted);
+  }
+
+  .screen-match-ict-toggle:hover{color:var(--text);}
+
+  .screen-match-ict-toggle input[type="checkbox"]{
+    width:15px;height:15px;flex:none;margin:0;accent-color:var(--accent);cursor:pointer;
+  }
+
+  .screen-match-status{padding:26px 4px;text-align:center;color:var(--muted);font:12px var(--font-mono);}
+
+  .screen-match-summary{
+    display:flex;align-items:center;gap:12px;margin:14px 0 16px;padding:13px 15px;
+    background:var(--panel2);border:1px solid var(--border);border-radius:12px;
+  }
+
+  .screen-match-summary .smc-count{font:800 24px var(--font-display);color:var(--accent);line-height:1;}
+
+  .screen-match-summary .smc-copy{display:flex;flex-direction:column;gap:2px;}
+
+  .screen-match-summary .smc-label{font-size:11.5px;color:var(--text);font-weight:600;}
+
+  .screen-match-summary .smc-sub{font:10.5px var(--font-mono);color:var(--faint);}
+
+  .screen-match-group-name{
+    font:700 10px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint);
+    margin:16px 0 7px;
+  }
+
+  .screen-match-group:first-of-type .screen-match-group-name{margin-top:0;}
+
+  .screen-match-list{display:flex;flex-direction:column;gap:6px;}
+
+  .screen-match-row{
+    position:relative;overflow:hidden;display:flex;align-items:center;gap:10px;
+    padding:9px 11px;border-radius:11px;border:1px solid var(--border);
+    background:var(--panel2);opacity:.5;transition:opacity .15s,border-color .15s,background .15s;
+  }
+
+  .screen-match-row.matched{
+    opacity:1;border-color:color-mix(in srgb,var(--sm-color,var(--accent)) 45%,transparent);
+    background:linear-gradient(155deg,color-mix(in srgb,var(--sm-color,var(--accent)) 10%,var(--panel2)),var(--panel2));
+  }
+
+  .screen-match-row .smr-icon{
+    width:26px;height:26px;border-radius:8px;flex:none;
+    display:flex;align-items:center;justify-content:center;font-size:12px;color:#04140F;
+  }
+
+  .screen-match-row .smr-title{flex:1;min-width:0;font-weight:600;font-size:12px;color:var(--text);}
+
+  .screen-match-row .smr-badge{
+    flex:none;font:700 9.5px var(--font-mono);letter-spacing:.04em;text-transform:uppercase;
+    padding:3px 8px;border-radius:20px;color:var(--faint);background:rgba(255,255,255,.04);
+  }
+
+  .screen-match-row.matched .smr-badge{color:var(--sm-color,var(--accent));background:color-mix(in srgb,var(--sm-color,var(--accent)) 16%,transparent);}
+
+  .app-tabs-row{display:flex;justify-content:center;margin-bottom:16px;}
+
+  .app-tabs{
+    display:inline-flex;align-items:center;background:var(--panel);border:1px solid var(--border);
+    border-radius:14px;padding:4px;gap:4px;flex-shrink:0;
+  }
+
+  .app-tab{
+    border:none;background:transparent;color:var(--muted);
+    border-radius:10px;padding:9px 18px;font:600 12.5px var(--font-display);cursor:pointer;
+    transition:background .15s,color .15s;
+  }
+
+  .app-tab:hover:not(.active){color:var(--text);}
+
+  .app-tab.active{background:rgba(53,224,192,.14);color:var(--accent);}
+
+  #scannerPane{
+    --bg:#06070A;
+    --panel:rgba(17,20,27,0.66);
+    --panel-solid:#12151C;
+    --panel2:#171B24;
+    --border:rgba(255,255,255,0.07);
+    --border-strong:rgba(255,255,255,0.14);
+    --text:#EDEFF5;
+    --muted:#8B93A6;
+    --faint:#525A6B;
+    --accent:#35E0C0;
+    --accent-dim:#1B6F5F;
+    --accent2:#7C8CFF;
+    --red:#FF4D6D;
+    --red-dim:#7A2436;
+    --gold:#F0C24B;
+    --font-display:'Space Grotesk', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+
+  #scannerPane a{color:inherit;}
+
+  #scannerPane ::selection{background:rgba(53,224,192,0.25);}
+
+  #scannerPane .wrap{max-width:1280px;margin:0 auto;padding:0;}
+
+  #scannerPane .topbar{
+    position:sticky;top:0;z-index:40;
+    backdrop-filter:blur(14px);
+    background:rgba(6,7,10,0.78);
+    border-bottom:1px solid var(--border);
+  }
+
+  #scannerPane .topbar-inner{
+    max-width:1280px;margin:0 auto;padding:14px 20px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  }
+
+  #scannerPane .brand{display:flex;align-items:center;gap:10px;}
+
+  #scannerPane .brand-mark{
+    width:30px;height:30px;border-radius:9px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 22px rgba(53,224,192,0.35);
+    flex:none;
+  }
+
+  #scannerPane .brand-mark svg{width:16px;height:16px;}
+
+  #scannerPane .brand-text{display:flex;flex-direction:column;line-height:1.15;}
+
+  #scannerPane .brand-text .t1{font-weight:700;font-size:15.5px;letter-spacing:-0.01em;}
+
+  #scannerPane .brand-text .t2{font:500 10.5px var(--font-mono);color:var(--faint);letter-spacing:.06em;}
+
+  #scannerPane .topbar-stats{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+
+  #scannerPane .tb-stat{display:flex;flex-direction:column;align-items:flex-end;line-height:1.2;}
+
+  #scannerPane .tb-stat .v{font:600 13px var(--font-mono);color:var(--text);}
+
+  #scannerPane .tb-stat .k{font-size:10px;color:var(--faint);letter-spacing:.04em;}
+
+  #scannerPane .live-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:scnPulse 2s infinite;flex:none;}
+
+  @keyframes scnPulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+  #scannerPane .live-chip{
+    display:inline-flex;align-items:center;gap:7px;
+    font:600 10.5px var(--font-mono);color:var(--accent);
+    background:rgba(53,224,192,.08);border:1px solid rgba(53,224,192,.28);
+    border-radius:20px;padding:6px 11px;white-space:nowrap;
+  }
+
+  #scannerPane .hero{padding:2px 0 4px;}
+
+  #scannerPane .hero p{color:var(--muted);font-size:12.5px;line-height:1.5;max-width:640px;margin:8px 0 0;}
+
+  #scannerPane .panel{
+    background:var(--panel);
+    backdrop-filter:blur(10px);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:16px;
+    margin-top:14px;
+  }
+
+  #scannerPane .panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+
+  #scannerPane .panel-title{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px;}
+
+  #scannerPane .panel-title .idx{
+    font:700 10px var(--font-mono);color:var(--bg);background:var(--accent);
+    width:18px;height:18px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex:none;
+  }
+
+  #scannerPane .panel-sub{color:var(--faint);font-size:11px;}
+
+  #scannerPane summary.panel-head{cursor:pointer;list-style:none;}
+
+  #scannerPane summary.panel-head::-webkit-details-marker{display:none;}
+
+  #scannerPane summary.panel-head::marker{content:'';}
+
+  #scannerPane .scn-chevron{color:var(--faint);font-size:12px;transition:transform .15s;flex:none;}
+
+  #scannerPane details[open] .scn-chevron{transform:rotate(180deg);color:var(--accent);}
+
+  #scannerPane .scn-builder-details{display:block;}
+
+  #scannerPane .preset-group{border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--panel2);}
+
+  #scannerPane .preset-group:last-child{margin-bottom:0;}
+
+  #scannerPane .preset-group summary{
+    list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;
+    padding:11px 12px;transition:background .15s;
+  }
+
+  #scannerPane .preset-group summary::-webkit-details-marker{display:none;}
+
+  #scannerPane .preset-group summary:hover{background:rgba(255,255,255,0.02);}
+
+  #scannerPane .preset-group .pg-name{
+    font:700 10.5px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--text);
+  }
+
+  #scannerPane .preset-group .pg-count{font-size:10px;color:var(--faint);font-weight:600;}
+
+  #scannerPane .preset-group .pg-chevron{margin-left:auto;color:var(--faint);font-size:12px;transition:transform .15s;flex:none;}
+
+  #scannerPane .preset-group[open] summary{border-bottom:1px solid var(--border);}
+
+  #scannerPane .preset-group[open] .pg-chevron{transform:rotate(180deg);color:var(--accent);}
+
+  #scannerPane .preset-cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;padding:10px;}
+
+  #scannerPane .preset-card{
+    position:relative;isolation:isolate;overflow:hidden;
+    background:linear-gradient(155deg,var(--panel2),var(--panel-solid));
+    border:1px solid var(--border);border-radius:14px;
+    padding:12px 13px 13px;cursor:pointer;text-align:left;
+    display:flex;flex-direction:column;gap:6px;
+    box-shadow:0 1px 0 0 rgba(255,255,255,.04) inset;
+    transition:border-color .2s ease, transform .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+
+  #scannerPane .preset-card::before{
+    content:'';position:absolute;z-index:0;top:-40%;left:-15%;width:75%;height:85%;
+    background:radial-gradient(circle,var(--pc-color,var(--accent)) 0%,transparent 72%);
+    opacity:0;filter:blur(18px);transition:opacity .25s ease;pointer-events:none;
+  }
+
+  #scannerPane .preset-card:hover{
+    border-color:var(--border-strong);transform:translateY(-2px);
+    box-shadow:0 1px 0 0 rgba(255,255,255,.04) inset, 0 10px 24px -12px rgba(0,0,0,.55);
+  }
+
+  #scannerPane .preset-card:hover::before{opacity:.14;}
+
+  #scannerPane .preset-card.active{
+    border-color:var(--pc-color,var(--accent));
+    background:linear-gradient(155deg,color-mix(in srgb,var(--pc-color,var(--accent)) 12%,var(--panel2)),var(--panel-solid));
+    box-shadow:0 1px 0 0 rgba(255,255,255,.04) inset, 0 0 0 1px color-mix(in srgb,var(--pc-color,var(--accent)) 45%,transparent), 0 10px 26px -14px color-mix(in srgb,var(--pc-color,var(--accent)) 60%,transparent);
+  }
+
+  #scannerPane .preset-card.active::before{opacity:.22;}
+
+  #scannerPane .preset-card .pc-head{position:relative;z-index:1;display:flex;align-items:center;gap:9px;}
+
+  #scannerPane .preset-card .pc-icon{
+    width:30px;height:30px;border-radius:9px;flex:none;
+    display:flex;align-items:center;justify-content:center;font-size:13px;
+    box-shadow:0 4px 12px -3px color-mix(in srgb,var(--pc-color,var(--accent)) 65%,transparent);
+  }
+
+  #scannerPane .preset-card .pc-title{font-weight:700;font-size:12px;letter-spacing:-.01em;}
+
+  #scannerPane .preset-card .pc-desc-wrap{
+    position:relative;z-index:1;display:grid;grid-template-rows:0fr;
+    transition:grid-template-rows .25s ease;
+  }
+
+  #scannerPane .preset-card.active .pc-desc-wrap{grid-template-rows:1fr;margin-top:1px;}
+
+  #scannerPane .preset-card .pc-desc{
+    min-height:0;overflow:hidden;font-size:9.5px;color:var(--faint);line-height:1.4;
+  }
+
+  @media (min-width:520px){
+    #scannerPane .preset-cards-grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    #scannerPane .preset-card, #scannerPane .preset-card::before, #scannerPane .preset-card .pc-desc-wrap{transition:none;}
+  }
+
+  #scannerPane .builder-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+
+  #scannerPane .builder-row + .builder-row{margin-top:10px;}
+
+  #scannerPane .builder-row .field-inline{min-width:0;max-width:100%;}
+
+  #scannerPane select, #scannerPane input[type=number], #scannerPane input[type=text]{
+    background:var(--panel2);border:1px solid var(--border);color:var(--text);
+    border-radius:9px;padding:9px 11px;font:500 12.5px var(--font-mono);outline:none;
+    max-width:100%;box-sizing:border-box;
+  }
+
+  #scannerPane select:focus, #scannerPane input:focus{border-color:var(--accent);}
+
+  #scannerPane #scnMetricSelect{width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  #scannerPane #scnOperatorSelect{width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  @media(max-width:380px){
+  #scannerPane #scnMetricSelect{width:150px;}
+  #scannerPane #scnOperatorSelect{width:120px;}
+}
+
+  #scannerPane .add-condition-btn{
+    background:var(--panel2);border:1px dashed var(--border-strong);color:var(--accent);
+    border-radius:9px;padding:9px 16px;font:600 12px var(--font-display);cursor:pointer;
+    display:flex;align-items:center;gap:6px;transition:border-color .15s,background .15s;
+  }
+
+  #scannerPane .add-condition-btn:hover{border-color:var(--accent);background:rgba(53,224,192,0.06);}
+
+  #scannerPane .chips-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;min-height:16px;}
+
+  #scannerPane .cond-chip{
+    display:flex;align-items:center;gap:8px;
+    background:rgba(124,140,255,0.09);border:1px solid rgba(124,140,255,0.32);
+    color:#C9CFFF;border-radius:20px;padding:6px 8px 6px 13px;font:600 11.5px var(--font-mono);
+  }
+
+  #scannerPane .cond-chip button{
+    background:rgba(255,255,255,0.08);border:none;color:inherit;width:17px;height:17px;border-radius:50%;
+    cursor:pointer;font-size:11px;line-height:1;display:flex;align-items:center;justify-content:center;
+  }
+
+  #scannerPane .cond-chip button:hover{background:rgba(255,255,255,0.18);}
+
+  #scannerPane .empty-chips{color:var(--faint);font-size:12px;font-style:italic;}
+
+  #scannerPane .match-toggle{display:flex;background:var(--panel2);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+
+  #scannerPane .match-toggle button{
+    background:transparent;border:none;color:var(--muted);padding:8px 14px;font:600 11.5px var(--font-mono);cursor:pointer;
+  }
+
+  #scannerPane .match-toggle button.active{background:var(--accent);color:#04211C;}
+
+  #scannerPane .scan-bar{display:flex;flex-direction:column;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+
+  #scannerPane .scan-bar-row{display:flex;gap:10px;}
+
+  #scannerPane .scan-bar-row .field-inline{flex:1;min-width:0;}
+
+  #scannerPane .tf-toggle{display:flex;background:var(--panel2);border:1px solid var(--border);border-radius:10px;overflow:hidden;width:100%;}
+
+  #scannerPane .tf-toggle button{flex:1;background:transparent;border:none;color:var(--muted);padding:9px 6px;font:600 12px var(--font-mono);cursor:pointer;}
+
+  #scannerPane .tf-toggle button.active{background:var(--accent);color:#04211C;}
+
+  #scannerPane .scan-bar-row input[type=number]{width:100%;}
+
+  #scannerPane .field-inline{display:flex;flex-direction:column;gap:4px;}
+
+  #scannerPane .field-inline label{font:600 10px var(--font-mono);color:var(--faint);letter-spacing:.04em;text-transform:uppercase;}
+
+  #scannerPane .run-btn{
+    width:100%;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,var(--accent),#1fb99e);color:#04211C;border:none;
+    border-radius:12px;padding:13px 26px;font:700 13.5px var(--font-display);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 6px 24px rgba(53,224,192,0.25);
+    transition:transform .12s, box-shadow .12s;
+  }
+
+  #scannerPane .run-btn:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(53,224,192,0.35);}
+
+  #scannerPane .run-btn:disabled{opacity:.65;cursor:default;transform:none;}
+
+  #scannerPane .run-btn .ring{width:15px;height:15px;border-radius:50%;border:2px solid rgba(4,33,28,.35);border-top-color:#04211C;display:none;animation:scnSpin .7s linear infinite;}
+
+  #scannerPane .run-btn.loading .ring{display:inline-block;}
+
+  #scannerPane .run-btn.loading .arrow{display:none;}
+
+  @keyframes scnSpin{to{transform:rotate(360deg);}}
+
+  #scannerPane .progress-wrap{margin-top:14px;display:none;}
+
+  #scannerPane .progress-track{height:5px;border-radius:99px;background:var(--panel2);overflow:hidden;border:1px solid var(--border);}
+
+  #scannerPane .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .25s;}
+
+  #scannerPane .progress-label{margin-top:8px;font:500 11.5px var(--font-mono);color:var(--muted);display:flex;justify-content:space-between;}
+
+  #scannerPane .error-box{display:none;margin-top:14px;background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.3);color:#ffb4c1;border-radius:12px;padding:12px 14px;font-size:12.5px;line-height:1.5;}
+
+  #scannerPane #scnResultsPanel{padding:14px 0;}
+
+  #scannerPane #scnResultsPanel .results-head{padding:0 14px 10px;margin-bottom:0;}
+
+  #scannerPane #scnResultsPanel .empty-state{padding:44px 20px;}
+
+  #scannerPane .results-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+
+  #scannerPane .results-title{display:flex;align-items:center;gap:10px;}
+
+  #scannerPane .results-count{font-size:16px;font-weight:700;}
+
+  #scannerPane .results-count .n{color:var(--accent);}
+
+  #scannerPane .table-scroll{overflow-x:auto;border:none;border-radius:0;border-top:1px solid var(--border);}
+
+  #scannerPane table{width:100%;border-collapse:collapse;min-width:720px;}
+
+  #scannerPane thead th{
+    text-align:left;font:600 10px var(--font-mono);color:var(--faint);text-transform:uppercase;letter-spacing:.05em;
+    padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;
+    position:sticky;top:0;
+  }
+
+  #scannerPane thead th:hover{color:var(--muted);}
+
+  #scannerPane thead th.sorted{color:var(--accent);}
+
+  #scannerPane tbody td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:12px;white-space:nowrap;}
+
+  #scannerPane tbody tr{transition:background .1s;}
+
+  #scannerPane tbody tr:hover{background:rgba(255,255,255,0.02);}
+
+  #scannerPane tbody tr:last-child td{border-bottom:none;}
+
+  #scannerPane .sym-cell{display:flex;align-items:center;gap:10px;}
+
+  #scannerPane .sym-badge{width:30px;height:30px;border-radius:9px;flex:none;display:flex;align-items:center;justify-content:center;font:700 10.5px var(--font-mono);color:#fff;}
+
+  #scannerPane .sym-name{font-weight:700;font-size:13px;}
+
+  #scannerPane .sym-sub{font:500 10px var(--font-mono);color:var(--faint);}
+
+  #scannerPane .mono{font-family:var(--font-mono);}
+
+  #scannerPane .chg-pos{color:var(--accent);}
+
+  #scannerPane .chg-neg{color:var(--red);}
+
+  #scannerPane .spark{display:block;}
+
+  #scannerPane .badge{display:inline-flex;align-items:center;gap:4px;font:600 10.5px var(--font-mono);padding:4px 8px;border-radius:20px;white-space:nowrap;}
+
+  #scannerPane .badge-bull{background:rgba(53,224,192,0.1);color:var(--accent);border:1px solid rgba(53,224,192,0.3);}
+
+  #scannerPane .badge-bear{background:rgba(255,77,109,0.1);color:var(--red);border:1px solid rgba(255,77,109,0.3);}
+
+  #scannerPane .badge-neutral{background:rgba(139,147,166,0.1);color:var(--muted);border:1px solid var(--border);}
+
+  #scannerPane .matched-chips{display:flex;flex-wrap:wrap;gap:4px;max-width:220px;white-space:normal;}
+
+  #scannerPane .matched-chip{font:600 9.5px var(--font-mono);padding:3px 7px;border-radius:20px;background:rgba(124,140,255,0.1);color:#B7C0FF;border:1px solid rgba(124,140,255,0.25);}
+
+  #scannerPane .row-actions{display:flex;gap:6px;}
+
+  #scannerPane .icon-btn{
+    width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--panel2);
+    color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;text-decoration:none;
+  }
+
+  #scannerPane .icon-btn:hover{border-color:var(--border-strong);color:var(--text);}
+
+  #scannerPane .icon-btn.added{color:var(--accent);border-color:rgba(53,224,192,0.35);}
+
+  #scannerPane .empty-state{
+    text-align:center;padding:60px 20px;color:var(--faint);
+  }
+
+  #scannerPane .empty-state .es-icon{font-size:34px;margin-bottom:10px;opacity:.6;}
+
+  #scannerPane .empty-state .es-title{font-weight:600;color:var(--muted);font-size:14px;margin-bottom:5px;}
+
+  #scannerPane .empty-state .es-sub{font-size:12px;max-width:360px;margin:0 auto;line-height:1.5;}
+
+  #scannerPane .footer-note{margin-top:26px;text-align:center;color:var(--faint);font-size:11px;font-family:var(--font-mono);line-height:1.7;}
+
+  #scannerPane .scn-stats{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
 </style>
 </head>
 <body>
@@ -629,7 +1104,7 @@
 
 <div class="header-row">
   <div>
-    <div class="eyebrow"><span class="dot"></span>Ichimoku Breakout Screener</div>
+    <div class="eyebrow"><span class="dot"></span><span id="mainEyebrowText">Ichimoku Breakout Screener</span></div>
     <div class="title-row">
       <h1 id="pageTitle">Binance USDT-M Futures Scanner</h1>
       <span class="live-tag">● Live market data</span>
@@ -637,6 +1112,14 @@
   </div>
 </div>
 
+<div class="app-tabs-row">
+  <div class="app-tabs">
+    <button type="button" class="app-tab active" id="tabScreenerBtn" onclick="switchAppView('screener')">📈 Cloud Breakout</button>
+    <button type="button" class="app-tab" id="tabScannerBtn" onclick="switchAppView('scanner')">🔍 Custom Screens</button>
+  </div>
+</div>
+
+<div id="screenerPane">
 <div class="panel">
   <input type="hidden" id="tenkanLen" value="9">
   <input type="hidden" id="kijunLen" value="26">
@@ -763,7 +1246,26 @@
     <p class="analysis-status" id="analysisStatus">Loading Binance candles...</p>
     <div class="chart-wrap"><canvas id="analysisChart"></canvas></div>
     <button type="button" class="price-action-link decision-price-action" onclick="openPriceAction(event)">Price action & ICT analysis →</button>
+    <button type="button" class="price-action-link screen-match-link" id="analysisScreenMatchBtn" onclick="Scanner.openScreenMatch(event)">Custom screens matched →</button>
     <div id="analysisDetails"></div>
+  </div>
+</div>
+<div class="analysis-modal price-action-modal" id="screenMatchModal" onclick="Scanner.closeScreenMatch(event)">
+  <div class="analysis-dialog" style="width:min(640px,100%);" role="dialog" aria-modal="true" aria-labelledby="screenMatchTitle" onclick="event.stopPropagation()">
+    <div class="trade-head" style="position:static;">
+      <div class="header-title-wrap">
+        <div>
+          <h2 id="screenMatchTitle">Custom screens matched</h2>
+          <p class="screen-match-subtitle" id="screenMatchSubtitle">—</p>
+        </div>
+      </div>
+      <div class="analysis-actions"><button class="close-btn" type="button" aria-label="Close" onclick="Scanner.closeScreenMatch()">×</button></div>
+    </div>
+    <label class="screen-match-ict-toggle" for="screenMatchIctToggle">
+      <input type="checkbox" id="screenMatchIctToggle" onchange="Scanner.setIncludeIct(this.checked)">
+      <span>Include ICT screens</span>
+    </label>
+    <div id="screenMatchBody"></div>
   </div>
 </div>
 <div class="analysis-modal price-action-modal" id="priceActionModal" onclick="closePriceAction(event)">
@@ -801,6 +1303,121 @@
     </div>
   </div>
 </div>
+</div><!-- /screenerPane -->
+
+<div id="scannerPane" style="display:none;">
+
+
+<div class="wrap">
+  <div class="hero">
+    <div class="scn-stats">
+      <span class="live-chip"><span class="live-dot"></span>LIVE · USDT-M</span>
+      <div class="tb-stat"><span class="v" id="scnTbUniverse">—</span><span class="k">universe</span></div>
+      <div class="tb-stat"><span class="v" id="scnTbLastScan">—</span><span class="k">last scan</span></div>
+    </div>
+  </div>
+
+  <!-- Presets -->
+  <div class="panel">
+    <div class="panel-head">
+      <div class="panel-title"><span class="idx">1</span>Quick screens</div>
+      <div class="panel-sub">Tap one to load a ready-made condition set</div>
+    </div>
+    <div class="preset-grid" id="scnPresetGrid"></div>
+  </div>
+
+  <!-- Condition builder -->
+  <div class="panel">
+  <details class="scn-builder-details">
+    <summary class="panel-head scn-builder-summary">
+      <div class="panel-title"><span class="idx">2</span>Condition builder</div>
+      <div class="panel-sub" id="scnMatchModeSub">A coin must satisfy every condition below</div>
+      <span class="scn-chevron">▾</span>
+    </summary>
+    <div class="builder-row">
+      <div class="field-inline">
+        <label>Metric</label>
+        <select id="scnMetricSelect"></select>
+      </div>
+      <div class="field-inline">
+        <label>Operator</label>
+        <select id="scnOperatorSelect"></select>
+      </div>
+      <div class="field-inline" id="scnValueField">
+        <label>Value</label>
+        <input type="number" id="scnValueInput" step="any" style="width:110px;">
+      </div>
+      <div class="field-inline">
+        <label>&nbsp;</label>
+        <button class="add-condition-btn" onclick="Scanner.addConditionFromForm()">+ Add condition</button>
+      </div>
+    </div>
+    <div class="builder-row">
+      <div class="field-inline">
+        <label>Match</label>
+        <div class="match-toggle">
+          <button id="scnMatchAllBtn" class="active" onclick="Scanner.setMatchMode('all')">ALL</button>
+          <button id="scnMatchAnyBtn" onclick="Scanner.setMatchMode('any')">ANY</button>
+        </div>
+      </div>
+    </div>
+    <div class="chips-row" id="scnChipsRow"><span class="empty-chips">No conditions yet — add one above or pick a quick screen.</span></div>
+  </details>
+
+    <div class="scan-bar">
+      <div class="scan-bar-row">
+        <div class="field-inline">
+          <label>Timeframe</label>
+          <div class="tf-toggle" id="scnTfToggle">
+            <button data-tf="1h">1H</button>
+            <button data-tf="4h" class="active">4H</button>
+            <button data-tf="1d">1D</button>
+            <button data-tf="1w">1W</button>
+          </div>
+        </div>
+        <div class="field-inline">
+          <label>Min 24h volume ($)</label>
+          <input type="number" id="scnMinVolume" value="3000000">
+        </div>
+      </div>
+      <button class="run-btn" id="scnRunBtn" onclick="Scanner.runScan()">
+        <span class="ring"></span>
+        <span class="arrow">▶</span>
+        <span id="scnRunBtnLabel">Run scan</span>
+      </button>
+    </div>
+
+    <div class="progress-label" id="scnStatusWrap"><span id="scnStatusText">Idle</span><span id="scnProgressPct"></span></div>
+    <div class="progress-wrap" id="scnProgressWrap">
+      <div class="progress-track"><div class="progress-fill" id="scnProgressFill"></div></div>
+    </div>
+    <div class="error-box" id="scnErrorBox"></div>
+  </div>
+
+  <!-- Results -->
+  <div class="panel" id="scnResultsPanel">
+    <div class="results-head">
+      <div class="results-title">
+        <div class="results-count"><span class="n" id="scnResultsCountN">0</span> matches</div>
+      </div>
+    </div>
+    <div id="scnResultsBody">
+      <div class="empty-state">
+        <div class="es-icon">◎</div>
+        <div class="es-title">No scan run yet</div>
+        <div class="es-sub">Pick a quick screen or build your own conditions, then hit Run scan to search the full USDT-M perpetual universe.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    <p style="margin:0 0 10px;">Combine technical, market-data, and derivatives conditions — RSI, MACD, EMA structure, ADX, Stochastic RSI, divergence, volatility, volume, funding rate, open interest — into a single scan and get back only the coins that actually match.</p>
+    Data via Binance USDT-M Futures · Prices update every scan, not continuously · Not financial advice
+  </div>
+</div>
+
+
+</div><!-- /scannerPane -->
 </div>
 
 <script>
@@ -826,6 +1443,10 @@ let currentExchangeSymbol = null;
 // re-deriving it from allResults, which only reflects the main screener's
 // currently selected timeframe.
 let currentAnalysisRow = null;
+// The exact interval currently shown in the analysis modal (Daily/4H/etc.),
+// used by the Custom Screens "screens matched" popover so it checks the
+// same timeframe the analysis modal is currently displaying.
+let currentAnalysisInterval = null;
 const PORTFOLIO_STORAGE_KEY = 'crypto-screener-portfolio-usdt';
 const TRADING_SETTINGS_KEY = 'crypto-screener-trading-settings';
 const DEFAULT_PORTFOLIO = 1000;
@@ -2646,12 +3267,16 @@ async function openAnalysis(symbol, intervalOverride){
   document.getElementById('analysisExchangeBtn').style.display = isStockRow ? 'none' : '';
   document.getElementById('analysisInfoBtn').style.display = isStockRow ? 'none' : '';
   document.getElementById('analysisTwitterBtn').style.display = isStockRow ? 'none' : '';
+  // Custom Screens (Scanner tab) only scans the Binance USDT-M perpetual
+  // universe, so the "screens matched" shortcut doesn't apply to stock rows.
+  document.getElementById('analysisScreenMatchBtn').style.display = isStockRow ? 'none' : '';
   // Use the interval the row was actually screened on (not whatever the timeframe
   // dropdown currently shows) so the Ichimoku setup label and the freshly-fetched
   // RSI/MACD/EMA/candles below are always describing the same timeframe.
   // intervalOverride lets the Daily<->4-Hour switch link on the Levels card
   // reopen this same symbol on the other timeframe.
   const interval = intervalOverride || row.interval || analysisInterval();
+  currentAnalysisInterval = interval;
   const symbolLink = document.getElementById('analysisSymbolLink');
   symbolLink.textContent = symbol;
   symbolLink.href = tradingViewChartUrl(symbol, interval, source);
@@ -3549,7 +4174,1352 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js').catch(err => console.warn('SW registration failed:', err));
   });
 }
-</script>
 
+// Toggles between the Ichimoku screener and the condition-based scanner.
+// Both panes live in the DOM at all times (scanner's data/state doesn't
+// reset when you switch away and back); only visibility changes.
+function switchAppView(view){
+  const screenerPane = document.getElementById('screenerPane');
+  const scannerPane = document.getElementById('scannerPane');
+  const screenerBtn = document.getElementById('tabScreenerBtn');
+  const scannerBtn = document.getElementById('tabScannerBtn');
+  const isScanner = view === 'scanner';
+  screenerPane.style.display = isScanner ? 'none' : '';
+  scannerPane.style.display = isScanner ? '' : 'none';
+  screenerBtn.classList.toggle('active', !isScanner);
+  scannerBtn.classList.toggle('active', isScanner);
+  document.getElementById('mainEyebrowText').textContent = isScanner ? 'Condition-Based' : 'Ichimoku Breakout Screener';
+}
+</script>
+<script>
+(function(){
+
+/* =========================================================================
+   Data sources (mirrors screener.html's host-fallback pattern)
+   ========================================================================= */
+const FAPI_HOSTS = [
+  "https://fapi.binance.com",
+  "https://fapi1.binance.com",
+  "https://fapi2.binance.com",
+  "https://fapi3.binance.com",
+  "https://fapi4.binance.com"
+];
+let activeHost = FAPI_HOSTS[0];
+
+async function fetchWithTimeout(url, ms=12000){
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), ms);
+  try{ return await fetch(url, { signal: controller.signal }); }
+  finally{ clearTimeout(timer); }
+}
+async function fetchJSON(path){
+  const order = [activeHost, ...FAPI_HOSTS.filter(h => h !== activeHost)];
+  let lastErr;
+  for(const host of order){
+    try{
+      const res = await fetchWithTimeout(host + path);
+      if(!res.ok) throw new Error(`HTTP ${res.status} on ${host}${path}`);
+      const data = await res.json();
+      activeHost = host;
+      return data;
+    }catch(e){ lastErr = e; }
+  }
+  throw lastErr;
+}
+async function getUSDTPerpetualSymbols(){
+  const info = await fetchJSON(`/fapi/v1/exchangeInfo`);
+  return info.symbols
+    .filter(s => s.contractType === "PERPETUAL" && s.quoteAsset === "USDT" && s.status === "TRADING")
+    .map(s => s.symbol);
+}
+async function getKlines(symbol, interval, limit){
+  const raw = await fetchJSON(`/fapi/v1/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`);
+  return raw.map(k => ({ open:parseFloat(k[1]), high:parseFloat(k[2]), low:parseFloat(k[3]), close:parseFloat(k[4]), volume:parseFloat(k[5]) }));
+}
+async function get24hTickerSingle(symbol){
+  const t = await fetchJSON(`/fapi/v1/ticker/24hr?symbol=${symbol}`);
+  return {
+    priceChangePercent: parseFloat(t.priceChangePercent),
+    lastPrice: parseFloat(t.lastPrice),
+    quoteVolume: parseFloat(t.quoteVolume),
+    highPrice: parseFloat(t.highPrice),
+    lowPrice: parseFloat(t.lowPrice)
+  };
+}
+async function getFundingRateSingle(symbol){
+  const data = await fetchJSON(`/fapi/v1/premiumIndex?symbol=${symbol}`);
+  const rate = parseFloat(data.lastFundingRate);
+  return Number.isFinite(rate) ? rate*100 : null;
+}
+async function get24hTickers(){
+  const data = await fetchJSON(`/fapi/v1/ticker/24hr`);
+  const map = {};
+  for(const t of data){
+    map[t.symbol] = {
+      priceChangePercent: parseFloat(t.priceChangePercent),
+      lastPrice: parseFloat(t.lastPrice),
+      quoteVolume: parseFloat(t.quoteVolume),
+      highPrice: parseFloat(t.highPrice),
+      lowPrice: parseFloat(t.lowPrice)
+    };
+  }
+  return map;
+}
+// One bulk call covers funding for every symbol (Binance returns the whole
+// book when `symbol` is omitted) — cheap enough to fetch on every scan.
+async function getAllFundingRates(){
+  const data = await fetchJSON(`/fapi/v1/premiumIndex`);
+  const map = {};
+  for(const item of data){
+    const rate = parseFloat(item.lastFundingRate);
+    if(Number.isFinite(rate)) map[item.symbol] = { rate: rate*100, nextFundingTime: Number(item.nextFundingTime) };
+  }
+  return map;
+}
+// Open interest has no bulk "all symbols" endpoint, so this is one extra
+// per-symbol call — only fired when an active condition actually needs it
+// (see runScan). ~24h change using 4h-bucketed OI history.
+async function getOiChangePct(symbol){
+  try{
+    const data = await fetchJSON(`/futures/data/openInterestHist?symbol=${symbol}&period=4h&limit=7`);
+    if(!Array.isArray(data) || data.length<2) return null;
+    const first = parseFloat(data[0].sumOpenInterest);
+    const last = parseFloat(data[data.length-1].sumOpenInterest);
+    if(!Number.isFinite(first) || !Number.isFinite(last) || first===0) return null;
+    return ((last-first)/first)*100;
+  }catch(e){ return null; }
+}
+// All-time high, measured in ATR units so "at ATH" allows a small tolerance
+// band rather than requiring an exact tick match against the recorded peak.
+// Always pulled from the daily chart (1500 bars ≈ full history for almost
+// every USDT-M perpetual) regardless of the scan's own selected timeframe,
+// since "all-time high" only means something on a long lookback.
+async function getAthProximityAtr(symbol, currentPrice){
+  try{
+    const candles = await getKlines(symbol, '1d', 1500);
+    if(candles.length < 30) return null;
+    const historicalHigh = Math.max(...candles.map(c=>c.high));
+    const allTimeHigh = Math.max(historicalHigh, currentPrice);
+    const atrVal = atr(candles.slice(-100), 14);
+    if(!Number.isFinite(atrVal) || atrVal<=0) return null;
+    return (allTimeHigh - currentPrice) / atrVal;
+  }catch(e){ return null; }
+}
+
+/* ---------------- Concurrency-limited queue ---------------- */
+async function runPool(items, worker, concurrency, onProgress){
+  let idx = 0, done = 0;
+  const results = new Array(items.length);
+  async function next(){
+    while(idx < items.length){
+      const i = idx++;
+      try{ results[i] = await worker(items[i]); }
+      catch(e){ results[i] = { symbol: items[i], error: e.message }; }
+      done++;
+      if(onProgress) onProgress(done, items.length);
+    }
+  }
+  await Promise.all(new Array(Math.min(concurrency, items.length)).fill(0).map(next));
+  return results;
+}
+
+/* =========================================================================
+   Indicator math (same formulas as screener.html)
+   ========================================================================= */
+function ema(values, length){
+  const result = new Array(values.length).fill(null);
+  if(values.length < length) return result;
+  const mult = 2 / (length + 1);
+  let prev = values.slice(0,length).reduce((s,v)=>s+v,0) / length;
+  result[length-1] = prev;
+  for(let i=length;i<values.length;i++){ prev = (values[i]-prev)*mult+prev; result[i] = prev; }
+  return result;
+}
+function lastValid(arr){ for(let i=arr.length-1;i>=0;i--){ if(arr[i]!==null && Number.isFinite(arr[i])) return arr[i]; } return null; }
+function valueAt(arr, offsetFromEnd){
+  let seen = -1;
+  for(let i=arr.length-1;i>=0;i--){
+    if(arr[i]!==null && Number.isFinite(arr[i])){ seen++; if(seen===offsetFromEnd) return arr[i]; }
+  }
+  return null;
+}
+function rsi(values, length=14){
+  if(values.length <= length) return NaN;
+  let gains=0, losses=0;
+  for(let i=1;i<=length;i++){ const c=values[i]-values[i-1]; if(c>=0) gains+=c; else losses-=c; }
+  let avgG=gains/length, avgL=losses/length;
+  for(let i=length+1;i<values.length;i++){
+    const c=values[i]-values[i-1];
+    avgG=(avgG*(length-1)+Math.max(0,c))/length;
+    avgL=(avgL*(length-1)+Math.max(0,-c))/length;
+  }
+  return avgL===0 ? 100 : 100-(100/(1+avgG/avgL));
+}
+function macdHistSeries(values){
+  const fast=ema(values,12), slow=ema(values,26);
+  const line=values.map((_,i)=> fast[i]!==null && slow[i]!==null ? fast[i]-slow[i] : null);
+  const validIdx = line.map((v,i)=>v!==null?i:-1).filter(i=>i>=0);
+  const validVals = validIdx.map(i=>line[i]);
+  const sig = ema(validVals,9);
+  const hist = new Array(line.length).fill(null);
+  validIdx.forEach((idx,j)=>{ if(sig[j]!==null) hist[idx] = line[idx]-sig[j]; });
+  return hist;
+}
+function atr(candles, length=14){
+  if(candles.length<=length) return NaN;
+  const tr=[];
+  for(let i=1;i<candles.length;i++){
+    const c=candles[i], p=candles[i-1];
+    tr.push(Math.max(c.high-c.low, Math.abs(c.high-p.close), Math.abs(c.low-p.close)));
+  }
+  let v = tr.slice(0,length).reduce((s,x)=>s+x,0)/length;
+  for(let i=length;i<tr.length;i++) v=(v*(length-1)+tr[i])/length;
+  return v;
+}
+function bollinger(values, length=20, mult=2){
+  if(values.length<length) return {upper:NaN, lower:NaN, mid:NaN, widthPct:NaN};
+  const window = values.slice(-length);
+  const mid = window.reduce((s,v)=>s+v,0)/length;
+  const variance = window.reduce((s,v)=>s+(v-mid)*(v-mid),0)/length;
+  const sd = Math.sqrt(variance);
+  const upper = mid+mult*sd, lower = mid-mult*sd;
+  return { upper, lower, mid, widthPct: mid>0 ? ((upper-lower)/mid)*100 : NaN };
+}
+function volumeRatio(candles){
+  if(candles.length<21) return null;
+  const trailing = candles.slice(-21,-1);
+  const avg = trailing.reduce((s,c)=>s+c.volume,0)/trailing.length;
+  const last = candles[candles.length-1];
+  return avg>0 ? last.volume/avg : null;
+}
+// Full RSI series (Wilder), one value per bar, instead of just the latest —
+// needed as the input for Stochastic RSI and the divergence detector below.
+function rsiSeries(values, length=14){
+  const out = new Array(values.length).fill(null);
+  if(values.length <= length) return out;
+  let gains=0, losses=0;
+  for(let i=1;i<=length;i++){ const c=values[i]-values[i-1]; if(c>=0) gains+=c; else losses-=c; }
+  let avgG=gains/length, avgL=losses/length;
+  out[length] = avgL===0 ? 100 : 100-(100/(1+avgG/avgL));
+  for(let i=length+1;i<values.length;i++){
+    const c=values[i]-values[i-1];
+    avgG=(avgG*(length-1)+Math.max(0,c))/length;
+    avgL=(avgL*(length-1)+Math.max(0,-c))/length;
+    out[i] = avgL===0 ? 100 : 100-(100/(1+avgG/avgL));
+  }
+  return out;
+}
+// Stochastic RSI %K: normalizes RSI itself against its own N-bar range, then
+// smooths with a short moving average — more sensitive than plain RSI for
+// timing entries/exits inside an already-established trend.
+function stochRsiK(rsiArr, stochLength=14, kSmooth=3){
+  const raw = new Array(rsiArr.length).fill(null);
+  for(let i=0;i<rsiArr.length;i++){
+    if(rsiArr[i]===null) continue;
+    const window=[];
+    for(let j=i;j>=0 && window.length<stochLength;j--){
+      if(rsiArr[j]===null) break;
+      window.push(rsiArr[j]);
+    }
+    if(window.length<stochLength) continue;
+    const mn=Math.min(...window), mx=Math.max(...window);
+    raw[i] = mx>mn ? ((rsiArr[i]-mn)/(mx-mn))*100 : 0;
+  }
+  const k = new Array(raw.length).fill(null);
+  for(let i=0;i<raw.length;i++){
+    if(raw[i]===null) continue;
+    const window=[];
+    for(let j=i;j>=0 && window.length<kSmooth;j--){
+      if(raw[j]===null) break;
+      window.push(raw[j]);
+    }
+    if(window.length<kSmooth) continue;
+    k[i] = window.reduce((s,v)=>s+v,0)/window.length;
+  }
+  return k;
+}
+// Wilder's ADX/+DI/-DI from raw candles — trend-strength filter, commonly
+// paired with breakout screens to weed out chop (ADX under ~20).
+function adx(candles, length=14){
+  if(candles.length <= length*2) return { adx:null, plusDI:null, minusDI:null };
+  const plusDM=[], minusDM=[], tr=[];
+  for(let i=1;i<candles.length;i++){
+    const c=candles[i], p=candles[i-1];
+    const upMove = c.high-p.high, downMove = p.low-c.low;
+    plusDM.push(upMove>downMove && upMove>0 ? upMove : 0);
+    minusDM.push(downMove>upMove && downMove>0 ? downMove : 0);
+    tr.push(Math.max(c.high-c.low, Math.abs(c.high-p.close), Math.abs(c.low-p.close)));
+  }
+  function wilderSmooth(arr, len){
+    const out = new Array(arr.length).fill(null);
+    if(arr.length<len) return out;
+    let sum = arr.slice(0,len).reduce((s,v)=>s+v,0);
+    out[len-1] = sum;
+    for(let i=len;i<arr.length;i++){ sum = sum-(sum/len)+arr[i]; out[i]=sum; }
+    return out;
+  }
+  const smoothTR = wilderSmooth(tr,length), smoothPlusDM = wilderSmooth(plusDM,length), smoothMinusDM = wilderSmooth(minusDM,length);
+  const plusDIarr=[], minusDIarr=[], dx=[];
+  for(let i=0;i<smoothTR.length;i++){
+    if(smoothTR[i]===null || smoothTR[i]===0){ plusDIarr.push(null); minusDIarr.push(null); dx.push(null); continue; }
+    const pdi = (smoothPlusDM[i]/smoothTR[i])*100, mdi = (smoothMinusDM[i]/smoothTR[i])*100;
+    plusDIarr.push(pdi); minusDIarr.push(mdi);
+    const sum = pdi+mdi;
+    dx.push(sum>0 ? (Math.abs(pdi-mdi)/sum)*100 : 0);
+  }
+  const validDX = dx.filter(v=>v!==null);
+  if(validDX.length<length) return { adx:null, plusDI:lastValid(plusDIarr), minusDI:lastValid(minusDIarr) };
+  let adxVal = validDX.slice(0,length).reduce((s,v)=>s+v,0)/length;
+  for(let i=length;i<validDX.length;i++){ adxVal = (adxVal*(length-1)+validDX[i])/length; }
+  return { adx:adxVal, plusDI:lastValid(plusDIarr), minusDI:lastValid(minusDIarr) };
+}
+// Finds simple local pivots (span bars lower/higher on both sides) in a series.
+function findPivots(arr, span=2){
+  const highs=[], lows=[];
+  for(let i=span;i<arr.length-span;i++){
+    if(arr[i]===null || arr[i]===undefined) continue;
+    let isHigh=true, isLow=true;
+    for(let j=i-span;j<=i+span;j++){
+      if(j===i || arr[j]===null || arr[j]===undefined) continue;
+      if(arr[j]>=arr[i]) isHigh=false;
+      if(arr[j]<=arr[i]) isLow=false;
+    }
+    if(isHigh) highs.push(i);
+    if(isLow) lows.push(i);
+  }
+  return { highs, lows };
+}
+// Regular RSI divergence: price prints a higher high while RSI prints a lower
+// high (bearish), or price prints a lower low while RSI prints a higher low
+// (bullish). Only flags divergences whose second pivot is recent, so stale
+// divergence from weeks ago doesn't keep matching.
+function detectDivergence(closes, rsiArr, lookback=40, span=2){
+  const start = Math.max(0, closes.length-lookback);
+  const priceWindow = closes.slice(start);
+  const rsiWindow = rsiArr.slice(start);
+  const { highs, lows } = findPivots(priceWindow, span);
+  const recentCutoff = priceWindow.length - span - 4;
+  let bearish=false, bullish=false;
+  if(highs.length>=2){
+    const h1=highs[highs.length-2], h2=highs[highs.length-1];
+    if(h2>=recentCutoff && priceWindow[h2]>priceWindow[h1] && rsiWindow[h1]!==null && rsiWindow[h2]!==null && rsiWindow[h2]<rsiWindow[h1]) bearish = true;
+  }
+  if(lows.length>=2){
+    const l1=lows[lows.length-2], l2=lows[lows.length-1];
+    if(l2>=recentCutoff && priceWindow[l2]<priceWindow[l1] && rsiWindow[l1]!==null && rsiWindow[l2]!==null && rsiWindow[l2]>rsiWindow[l1]) bullish = true;
+  }
+  return { bullish, bearish };
+}
+
+/* =========================================================================
+   ICT / Smart Money Concepts
+   Swing structure, Fair Value Gaps, liquidity sweeps, BOS/CHoCH,
+   displacement, OTE, order blocks/breakers, equal highs-lows,
+   premium/discount. All derived from the same candle array already
+   fetched for RSI/EMA/etc — no extra API calls except NDOG/NWOG, which is
+   gated the same way as Open Interest / ATH (see runScan).
+
+   NOTE ON SCOPE: "Order block" and "breaker block" here are a confluence
+   of the atomic signals below (sweep + FVG + structure break landing in
+   the same short window), not a literal persistent zone tracked candle by
+   candle. That's a deliberate simplification for a per-scan snapshot —
+   good enough to flag "this just happened", not meant to draw the zone.
+   ========================================================================= */
+
+// Swing highs/lows: same "N bars lower/higher on both sides" pivot logic as
+// findPivots() above, but run over the high/low series separately (ICT
+// swing points are wick-based, not closing-price based like RSI pivots).
+function findSwingPoints(candles, span=3){
+  const highs = candles.map(c=>c.high);
+  const lows = candles.map(c=>c.low);
+  const swingHighs = [], swingLows = [];
+  for(let i=span;i<candles.length-span;i++){
+    let isHigh=true, isLow=true;
+    for(let j=i-span;j<=i+span;j++){
+      if(j===i) continue;
+      if(highs[j]>=highs[i]) isHigh=false;
+      if(lows[j]<=lows[i]) isLow=false;
+    }
+    if(isHigh) swingHighs.push({ idx:i, price:highs[i] });
+    if(isLow) swingLows.push({ idx:i, price:lows[i] });
+  }
+  return { swingHighs, swingLows };
+}
+
+// Fair Value Gaps — classic ICT 3-candle imbalance: candle[i] and candle[i-2]
+// don't overlap, leaving candle[i-1]'s body as a void.
+//   Bullish FVG: low[i]  > high[i-2]  (price gapped up and left a hole below)
+//   Bearish FVG: high[i] < low[i-2]   (price gapped down and left a hole above)
+// "Mitigated" = a later candle has already traded back into that gap zone.
+function findFVGs(candles, lookback=60){
+  const start = Math.max(2, candles.length-lookback);
+  const fvgs = [];
+  for(let i=start;i<candles.length;i++){
+    const c0 = candles[i-2], c2 = candles[i];
+    if(c2.low > c0.high) fvgs.push({ type:'bull', top:c2.low, bottom:c0.high, formedIdx:i });
+    else if(c2.high < c0.low) fvgs.push({ type:'bear', top:c0.low, bottom:c2.high, formedIdx:i });
+  }
+  for(const gap of fvgs){
+    let mitigated = false;
+    for(let k=gap.formedIdx+1;k<candles.length;k++){
+      if(candles[k].low<=gap.top && candles[k].high>=gap.bottom){ mitigated = true; break; }
+    }
+    gap.mitigated = mitigated;
+  }
+  return fvgs;
+}
+
+// Liquidity sweep: the last candle wicks beyond the most recent swing
+// high/low but closes back on the other side of it — a stop-run that traps
+// breakout traders before reversing. Only checked against the very last
+// candle so the screen reflects a sweep that just happened.
+function findLiquiditySweep(candles, swings){
+  const n = candles.length;
+  const last = candles[n-1];
+  const priorHighs = swings.swingHighs.filter(s=>s.idx < n-1);
+  const priorLows = swings.swingLows.filter(s=>s.idx < n-1);
+  let bearishSweep = false, bullishSweep = false;
+  if(priorHighs.length){
+    const level = priorHighs[priorHighs.length-1].price;
+    if(last.high>level && last.close<level) bearishSweep = true; // swept buy-side liquidity, closed back down
+  }
+  if(priorLows.length){
+    const level = priorLows[priorLows.length-1].price;
+    if(last.low<level && last.close>level) bullishSweep = true; // swept sell-side liquidity, closed back up
+  }
+  return { bullishSweep, bearishSweep };
+}
+
+// Market structure: BOS = break of the last swing point in the direction of
+// the prevailing structure (continuation). CHoCH = break against the
+// prevailing structure — the first sign of a reversal. Bias is read off the
+// last two confirmed swing highs and swing lows (higher-high+higher-low =
+// bull, lower-high+lower-low = bear); the break itself must show up in one
+// of the last 3 closes, so it reflects a shift that just happened.
+function findStructureShift(candles, swings){
+  const { swingHighs, swingLows } = swings;
+  if(swingHighs.length<2 || swingLows.length<2) return { bosUp:false, bosDown:false, chochUp:false, chochDown:false };
+  const h1 = swingHighs[swingHighs.length-2], h2 = swingHighs[swingHighs.length-1];
+  const l1 = swingLows[swingLows.length-2], l2 = swingLows[swingLows.length-1];
+  let bias = 'neutral';
+  if(h2.price>h1.price && l2.price>l1.price) bias = 'bull';
+  else if(h2.price<h1.price && l2.price<l1.price) bias = 'bear';
+  const recent = candles.slice(-3);
+  const brokeAboveLastHigh = recent.some(c=>c.close>h2.price);
+  const brokeBelowLastLow = recent.some(c=>c.close<l2.price);
+  return {
+    bosUp: bias==='bull' && brokeAboveLastHigh,
+    bosDown: bias==='bear' && brokeBelowLastLow,
+    chochUp: bias==='bear' && brokeAboveLastHigh,
+    chochDown: bias==='bull' && brokeBelowLastLow,
+  };
+}
+
+// Displacement: a candle whose body is an outsized multiple of recent ATR —
+// the large one-directional push ICT reads as institutional intent, usually
+// the same move that leaves an FVG behind it.
+function findDisplacement(candles, atrVal, mult=1.8){
+  const last = candles[candles.length-1];
+  const body = Math.abs(last.close-last.open);
+  if(!Number.isFinite(atrVal) || atrVal<=0) return { bullish:false, bearish:false, ratio:null };
+  const ratio = body/atrVal;
+  return { bullish: ratio>=mult && last.close>last.open, bearish: ratio>=mult && last.close<last.open, ratio };
+}
+
+// Optimal Trade Entry: price currently retracing into the 61.8%-79% zone of
+// the most recent completed swing leg — low-to-high for a long OTE (a
+// discount pullback in an up-leg), high-to-low for a short OTE (a premium
+// pullback in a down-leg).
+function findOteZone(candles, swings, price){
+  const { swingHighs, swingLows } = swings;
+  if(!swingHighs.length || !swingLows.length) return { bullish:false, bearish:false };
+  const lastHigh = swingHighs[swingHighs.length-1];
+  const lastLow = swingLows[swingLows.length-1];
+  let bullish=false, bearish=false;
+  if(lastLow.idx < lastHigh.idx){ // up-leg: low then high -> long OTE on the pullback
+    const range = lastHigh.price-lastLow.price;
+    if(range>0){
+      const upper = lastHigh.price-0.618*range, lower = lastHigh.price-0.79*range;
+      if(price>=lower && price<=upper) bullish = true;
+    }
+  }
+  if(lastHigh.idx < lastLow.idx){ // down-leg: high then low -> short OTE on the pullback
+    const range = lastHigh.price-lastLow.price;
+    if(range>0){
+      const lower = lastLow.price+0.618*range, upper = lastLow.price+0.79*range;
+      if(price>=lower && price<=upper) bearish = true;
+    }
+  }
+  return { bullish, bearish };
+}
+
+// Order block / breaker block — see the scope note above the section header:
+// this is a confluence of sweep + fresh FVG + structure break, not a
+// literally-tracked zone. Breaker = the sweep failed to hold and structure
+// flipped the *opposite* way instead (the failed-OB flip).
+function findOrderBlockSignals(sweep, fvgs, structure, candles){
+  const recentBullFvg = fvgs.some(f=>f.type==='bull' && f.formedIdx>=candles.length-4);
+  const recentBearFvg = fvgs.some(f=>f.type==='bear' && f.formedIdx>=candles.length-4);
+  return {
+    freshBullishOB: sweep.bullishSweep && recentBullFvg && (structure.bosUp || structure.chochUp),
+    freshBearishOB: sweep.bearishSweep && recentBearFvg && (structure.bosDown || structure.chochDown),
+    bullishBreaker: sweep.bearishSweep && structure.chochUp,
+    bearishBreaker: sweep.bullishSweep && structure.chochDown,
+  };
+}
+
+// Equal highs / equal lows — ≥2 swing points within a tight (ATR-scaled)
+// tolerance band that price hasn't traded through yet. ICT treats these
+// clusters as resting liquidity pools that price is "drawn" to.
+function findEqualLevels(swings, price, atrVal){
+  const tol = Number.isFinite(atrVal) ? atrVal*0.25 : price*0.0015;
+  function hasCluster(points, isHigh){
+    for(let i=points.length-1;i>0;i--){
+      for(let j=i-1;j>=0 && j>=i-4;j--){
+        if(Math.abs(points[i].price-points[j].price)<=tol){
+          const level = (points[i].price+points[j].price)/2;
+          const untapped = isHigh ? price<level*1.01 : price>level*0.99;
+          if(untapped) return true;
+        }
+      }
+    }
+    return false;
+  }
+  return { equalHighs: hasCluster(swings.swingHighs, true), equalLows: hasCluster(swings.swingLows, false) };
+}
+
+// Premium / Discount — where price sits inside the recent dealing range.
+// Above the midpoint = premium (ICT favors looking for shorts there); below
+// = discount (favors longs).
+function findPremiumDiscount(candles, lookback=50){
+  const window = candles.slice(-lookback);
+  const hi = Math.max(...window.map(c=>c.high)), lo = Math.min(...window.map(c=>c.low));
+  const price = candles[candles.length-1].close;
+  if(hi<=lo) return { premium:false, discount:false, pct:null };
+  const pct = ((price-lo)/(hi-lo))*100;
+  return { premium: pct>50, discount: pct<=50, pct };
+}
+
+// New Day / New Week Opening Gap — the gap between the most recent
+// daily/weekly candle's open and the prior daily/weekly candle's close.
+// "Unfilled" = price hasn't traded back into that gap since the new session
+// opened. Gated behind an active condition (see runScan), same pattern as
+// getOiChangePct/getAthProximityAtr, since it needs its own klines calls.
+async function getNdogNwog(symbol, currentPrice){
+  function gapInfo(candles){
+    if(candles.length<2) return { present:false };
+    const prev = candles[candles.length-2], curr = candles[candles.length-1];
+    if(curr.open===prev.close) return { present:false };
+    const top = Math.max(curr.open, prev.close), bottom = Math.min(curr.open, prev.close);
+    return { present:true, top, bottom, above: currentPrice>top, below: currentPrice<bottom, unfilled: currentPrice>top || currentPrice<bottom };
+  }
+  try{
+    const [daily, weekly] = await Promise.all([ getKlines(symbol,'1d',5), getKlines(symbol,'1w',5) ]);
+    return { ndog: gapInfo(daily), nwog: gapInfo(weekly) };
+  }catch(e){ return { ndog:{present:false}, nwog:{present:false} }; }
+}
+
+/* =========================================================================
+   Metric extraction per symbol
+   ========================================================================= */
+async function computeMetrics(symbol, interval, ticker){
+  const needed = interval === '1h' ? 230 : (interval === '4h' ? 230 : 230);
+  const candles = await getKlines(symbol, interval, Math.min(needed, 500));
+  if(candles.length < 60) throw new Error('not enough candles');
+  const closes = candles.map(c=>c.close);
+  const price = ticker ? ticker.lastPrice : closes[closes.length-1];
+
+  const ema20arr = ema(closes,20), ema50arr = ema(closes,50), ema200arr = ema(closes,200);
+  const ema20 = lastValid(ema20arr), ema50 = lastValid(ema50arr), ema200 = lastValid(ema200arr);
+  const ema20Prev = valueAt(ema20arr,1), ema50Prev = valueAt(ema50arr,1);
+
+  const rsiArr = rsiSeries(closes,14);
+  const rsiVal = lastValid(rsiArr);
+  const hist = macdHistSeries(closes);
+  const macdHist = lastValid(hist);
+  const macdHistPrev = valueAt(hist,1);
+
+  const stochKArr = stochRsiK(rsiArr,14,3);
+  const stochRsiKVal = lastValid(stochKArr);
+  const stochRsiKPrev = valueAt(stochKArr,1);
+  const stochRsiCrossUp = stochRsiKVal!==null && stochRsiKPrev!==null && stochRsiKPrev<=20 && stochRsiKVal>20;
+  const stochRsiCrossDown = stochRsiKVal!==null && stochRsiKPrev!==null && stochRsiKPrev>=80 && stochRsiKVal<80;
+
+  const adxResult = adx(candles,14);
+  const divergence = detectDivergence(closes, rsiArr, 40, 2);
+
+  const atrVal = atr(candles,14);
+  const atrPct = Number.isFinite(atrVal) ? (atrVal/price)*100 : NaN;
+  const bb = bollinger(closes,20,2);
+  const volRatio = volumeRatio(candles);
+
+  const high24 = ticker ? ticker.highPrice : Math.max(...candles.slice(-6).map(c=>c.high));
+  const low24 = ticker ? ticker.lowPrice : Math.min(...candles.slice(-6).map(c=>c.low));
+  const nearHighPct = high24>0 ? ((high24-price)/high24)*100 : NaN;
+  const nearLowPct = low24>0 ? ((price-low24)/low24)*100 : NaN;
+
+  const change24h = ticker ? ticker.priceChangePercent : ((price-closes[closes.length-2])/closes[closes.length-2])*100;
+  const quoteVolume24h = ticker ? ticker.quoteVolume : null;
+
+  const emaCrossUp = ema20!==null && ema50!==null && ema20Prev!==null && ema50Prev!==null && ema20>ema50 && ema20Prev<=ema50Prev;
+  const emaCrossDown = ema20!==null && ema50!==null && ema20Prev!==null && ema50Prev!==null && ema20<ema50 && ema20Prev>=ema50Prev;
+  const macdCrossUp = macdHist!==null && macdHistPrev!==null && macdHist>0 && macdHistPrev<=0;
+  const macdCrossDown = macdHist!==null && macdHistPrev!==null && macdHist<0 && macdHistPrev>=0;
+
+  const spark = closes.slice(-28);
+
+  // ---- ICT / Smart Money Concepts ----
+  const swings = findSwingPoints(candles, 3);
+  const fvgs = findFVGs(candles, 60);
+  const sweep = findLiquiditySweep(candles, swings);
+  const structure = findStructureShift(candles, swings);
+  const displacement = findDisplacement(candles, atrVal, 1.8);
+  const ote = findOteZone(candles, swings, price);
+  const obSignals = findOrderBlockSignals(sweep, fvgs, structure, candles);
+  const equalLevels = findEqualLevels(swings, price, atrVal);
+  const premDisc = findPremiumDiscount(candles, 50);
+
+  return {
+    symbol, price, change24h, quoteVolume24h,
+    rsi: rsiVal, macdHist, macdHistPrev, macdCrossUp, macdCrossDown,
+    ema20, ema50, ema200, emaCrossUp, emaCrossDown,
+    priceAboveEma200: ema200!==null ? price>ema200 : null,
+    atrPct, bbWidthPct: bb.widthPct, volRatio,
+    nearHighPct, nearLowPct, spark,
+    adx: adxResult.adx, plusDI: adxResult.plusDI, minusDI: adxResult.minusDI,
+    stochRsiK: stochRsiKVal, stochRsiCrossUp, stochRsiCrossDown,
+    bullishDivergence: divergence.bullish, bearishDivergence: divergence.bearish,
+    fundingRate: null, oiChangePct: null, athProximityAtr: null, // filled in by runScan (bulk/derivatives data, not per-symbol candles)
+    // ICT / Smart Money
+    fvgBullishAny: fvgs.some(f=>f.type==='bull'), fvgBullishUnmitigated: fvgs.some(f=>f.type==='bull' && !f.mitigated),
+    fvgBearishAny: fvgs.some(f=>f.type==='bear'), fvgBearishUnmitigated: fvgs.some(f=>f.type==='bear' && !f.mitigated),
+    liquiditySweepBullish: sweep.bullishSweep, liquiditySweepBearish: sweep.bearishSweep,
+    bosUp: structure.bosUp, bosDown: structure.bosDown, chochUp: structure.chochUp, chochDown: structure.chochDown,
+    displacementUp: displacement.bullish, displacementDown: displacement.bearish, displacementRatio: displacement.ratio,
+    oteBullish: ote.bullish, oteBearish: ote.bearish,
+    freshBullishOB: obSignals.freshBullishOB, freshBearishOB: obSignals.freshBearishOB,
+    bullishBreaker: obSignals.bullishBreaker, bearishBreaker: obSignals.bearishBreaker,
+    equalHighsNearby: equalLevels.equalHighs, equalLowsNearby: equalLevels.equalLows,
+    premiumZone: premDisc.premium, discountZone: premDisc.discount,
+    ndogNwog: null // filled in by runScan when a condition needs it (extra daily/weekly fetch)
+  };
+}
+
+/* =========================================================================
+   Condition system
+   ========================================================================= */
+const METRICS = [
+  { key:'rsi', label:'RSI (14)', group:'Technicals', unit:'', ops:['<','>'], def:30 },
+  { key:'macdHist', label:'MACD Histogram', group:'Technicals', unit:'', ops:['>0 (bullish)','<0 (bearish)','crossed bullish','crossed bearish'], noValue:true },
+  { key:'emaTrend', label:'EMA20 vs EMA50', group:'Technicals', unit:'', ops:['above (golden)','below (death)','just crossed up','just crossed down'], noValue:true },
+  { key:'priceVsEma200', label:'Price vs EMA200', group:'Technicals', unit:'', ops:['above','below'], noValue:true },
+  { key:'atrPct', label:'Volatility (ATR %)', group:'Technicals', unit:'%', ops:['<','>'], def:3 },
+  { key:'bbWidthPct', label:'Bollinger Band Width', group:'Technicals', unit:'%', ops:['<','>'], def:4 },
+  { key:'change24h', label:'24h Change', group:'Market data', unit:'%', ops:['>','<'], def:5 },
+  { key:'quoteVolume24h', label:'24h Quote Volume', group:'Market data', unit:'$', ops:['>'], def:5000000 },
+  { key:'volRatio', label:'Volume vs 20-bar avg', group:'Market data', unit:'×', ops:['>'], def:2 },
+  { key:'nearHighPct', label:'Distance from 24h High', group:'Market data', unit:'%', ops:['<'], def:1 },
+  { key:'nearLowPct', label:'Distance from 24h Low', group:'Market data', unit:'%', ops:['<'], def:1 },
+  { key:'adx', label:'Trend Strength (ADX)', group:'Technicals', unit:'', ops:['>','<'], def:25 },
+  { key:'stochRsiK', label:'Stochastic RSI %K', group:'Technicals', unit:'', ops:['<20 (oversold)','>80 (overbought)','crossed up (from oversold)','crossed down (from overbought)'], noValue:true },
+  { key:'bullishDivergence', label:'Bullish Divergence (RSI vs price)', group:'Technicals', unit:'', ops:['detected'], noValue:true },
+  { key:'bearishDivergence', label:'Bearish Divergence (RSI vs price)', group:'Technicals', unit:'', ops:['detected'], noValue:true },
+  { key:'fundingRate', label:'Funding Rate', group:'Derivatives', unit:'%', ops:['<','>'], def:0 },
+  { key:'oiChangePct', label:'Open Interest Change (~24h)', group:'Derivatives', unit:'%', ops:['>','<'], def:15 },
+  { key:'athProximityAtr', label:'Distance from All-Time High', group:'Technicals', unit:'× ATR', ops:['<','>'], def:0.5 },
+  // ---- ICT / Smart Money Concepts ----
+  { key:'fvgBullish', label:'Bullish Fair Value Gap', group:'ICT / Smart Money', unit:'', ops:['detected (any)','unmitigated only'], noValue:true },
+  { key:'fvgBearish', label:'Bearish Fair Value Gap', group:'ICT / Smart Money', unit:'', ops:['detected (any)','unmitigated only'], noValue:true },
+  { key:'liquiditySweep', label:'Liquidity Sweep', group:'ICT / Smart Money', unit:'', ops:['bullish (sell-side swept)','bearish (buy-side swept)'], noValue:true },
+  { key:'structureShift', label:'BOS / CHoCH', group:'ICT / Smart Money', unit:'', ops:['bullish BOS','bearish BOS','bullish CHoCH','bearish CHoCH'], noValue:true },
+  { key:'displacement', label:'Displacement Candle', group:'ICT / Smart Money', unit:'', ops:['bullish','bearish'], noValue:true },
+  { key:'displacementRatio', label:'Displacement Size (× ATR)', group:'ICT / Smart Money', unit:'× ATR', ops:['>'], def:1.5 },
+  { key:'oteZone', label:'Optimal Trade Entry (OTE)', group:'ICT / Smart Money', unit:'', ops:['bullish (discount, for longs)','bearish (premium, for shorts)'], noValue:true },
+  { key:'orderBlock', label:'Order Block (fresh)', group:'ICT / Smart Money', unit:'', ops:['bullish','bearish'], noValue:true },
+  { key:'breakerBlock', label:'Breaker Block', group:'ICT / Smart Money', unit:'', ops:['bullish','bearish'], noValue:true },
+  { key:'equalLevels', label:'Equal Highs/Lows (liquidity pool)', group:'ICT / Smart Money', unit:'', ops:['equal highs nearby','equal lows nearby'], noValue:true },
+  { key:'premiumDiscount', label:'Premium / Discount', group:'ICT / Smart Money', unit:'', ops:['premium (upper half)','discount (lower half)'], noValue:true },
+  { key:'ndogNwog', label:'Unfilled Opening Gap (NDOG/NWOG)', group:'ICT / Smart Money', unit:'', ops:['daily gap above','daily gap below','weekly gap above','weekly gap below'], noValue:true },
+];
+const METRIC_BY_KEY = Object.fromEntries(METRICS.map(m=>[m.key,m]));
+
+let conditions = [];   // {metric, operator, value}
+let matchMode = 'all';
+let allResults = [];
+let sortKey = 'change24h';
+let sortDir = -1;
+let currentInterval = '4h';
+
+function populateMetricSelect(){
+  const sel = document.getElementById('scnMetricSelect');
+  const groups = {};
+  METRICS.forEach(m => { (groups[m.group] = groups[m.group]||[]).push(m); });
+  sel.innerHTML = Object.entries(groups).map(([g,items]) =>
+    `<optgroup label="${g}">${items.map(m=>`<option value="${m.key}">${m.label}</option>`).join('')}</optgroup>`
+  ).join('');
+  sel.addEventListener('change', populateOperatorSelect);
+  populateOperatorSelect();
+}
+function populateOperatorSelect(){
+  const metric = METRIC_BY_KEY[document.getElementById('scnMetricSelect').value];
+  const opSel = document.getElementById('scnOperatorSelect');
+  opSel.innerHTML = metric.ops.map(o=>`<option value="${o}">${o}</option>`).join('');
+  document.getElementById('scnValueField').style.display = metric.noValue ? 'none' : 'flex';
+  if(!metric.noValue) document.getElementById('scnValueInput').value = metric.def ?? '';
+}
+
+function addConditionFromForm(){
+  const metricKey = document.getElementById('scnMetricSelect').value;
+  const operator = document.getElementById('scnOperatorSelect').value;
+  const metric = METRIC_BY_KEY[metricKey];
+  const value = metric.noValue ? null : parseFloat(document.getElementById('scnValueInput').value);
+  if(!metric.noValue && !Number.isFinite(value)){ return; }
+  conditions.push({ metric: metricKey, operator, value });
+  renderChips();
+}
+function removeCondition(i){ conditions.splice(i,1); renderChips(); }
+function renderChips(){
+  const row = document.getElementById('scnChipsRow');
+  document.querySelectorAll('.preset-card').forEach(c=>c.classList.remove('active'));
+  if(!conditions.length){ row.innerHTML = '<span class="empty-chips">No conditions yet — add one above or pick a quick screen.</span>'; return; }
+  row.innerHTML = conditions.map((c,i)=>{
+    const m = METRIC_BY_KEY[c.metric];
+    const valTxt = m.noValue ? '' : ` ${c.value}${m.unit}`;
+    return `<span class="cond-chip">${m.label} ${c.operator}${valTxt}<button onclick="Scanner.removeCondition(${i})">✕</button></span>`;
+  }).join('');
+}
+function setMatchMode(mode){
+  matchMode = mode;
+  document.getElementById('scnMatchAllBtn').classList.toggle('active', mode==='all');
+  document.getElementById('scnMatchAnyBtn').classList.toggle('active', mode==='any');
+  document.getElementById('scnMatchModeSub').textContent = mode==='all'
+    ? 'A coin must satisfy every condition below'
+    : 'A coin must satisfy at least one condition below';
+  if(allResults.length) sortAndRender();
+}
+
+function evalCondition(metrics, cond){
+  const v = metrics[cond.metric];
+  switch(cond.metric){
+    case 'macdHist':
+      if(cond.operator==='>0 (bullish)') return v!==null && v>0;
+      if(cond.operator==='<0 (bearish)') return v!==null && v<0;
+      if(cond.operator==='crossed bullish') return !!metrics.macdCrossUp;
+      if(cond.operator==='crossed bearish') return !!metrics.macdCrossDown;
+      return false;
+    case 'emaTrend':
+      if(cond.operator==='above (golden)') return metrics.ema20!==null && metrics.ema50!==null && metrics.ema20>metrics.ema50;
+      if(cond.operator==='below (death)') return metrics.ema20!==null && metrics.ema50!==null && metrics.ema20<metrics.ema50;
+      if(cond.operator==='just crossed up') return !!metrics.emaCrossUp;
+      if(cond.operator==='just crossed down') return !!metrics.emaCrossDown;
+      return false;
+    case 'priceVsEma200':
+      if(metrics.priceAboveEma200===null) return false;
+      return cond.operator==='above' ? metrics.priceAboveEma200 : !metrics.priceAboveEma200;
+    case 'stochRsiK':
+      if(cond.operator==='<20 (oversold)') return v!==null && v<20;
+      if(cond.operator==='>80 (overbought)') return v!==null && v>80;
+      if(cond.operator==='crossed up (from oversold)') return !!metrics.stochRsiCrossUp;
+      if(cond.operator==='crossed down (from overbought)') return !!metrics.stochRsiCrossDown;
+      return false;
+    case 'bullishDivergence':
+      return !!metrics.bullishDivergence;
+    case 'bearishDivergence':
+      return !!metrics.bearishDivergence;
+    case 'fvgBullish':
+      if(cond.operator==='detected (any)') return !!metrics.fvgBullishAny;
+      if(cond.operator==='unmitigated only') return !!metrics.fvgBullishUnmitigated;
+      return false;
+    case 'fvgBearish':
+      if(cond.operator==='detected (any)') return !!metrics.fvgBearishAny;
+      if(cond.operator==='unmitigated only') return !!metrics.fvgBearishUnmitigated;
+      return false;
+    case 'liquiditySweep':
+      if(cond.operator==='bullish (sell-side swept)') return !!metrics.liquiditySweepBullish;
+      if(cond.operator==='bearish (buy-side swept)') return !!metrics.liquiditySweepBearish;
+      return false;
+    case 'structureShift':
+      if(cond.operator==='bullish BOS') return !!metrics.bosUp;
+      if(cond.operator==='bearish BOS') return !!metrics.bosDown;
+      if(cond.operator==='bullish CHoCH') return !!metrics.chochUp;
+      if(cond.operator==='bearish CHoCH') return !!metrics.chochDown;
+      return false;
+    case 'displacement':
+      if(cond.operator==='bullish') return !!metrics.displacementUp;
+      if(cond.operator==='bearish') return !!metrics.displacementDown;
+      return false;
+    case 'oteZone':
+      if(cond.operator==='bullish (discount, for longs)') return !!metrics.oteBullish;
+      if(cond.operator==='bearish (premium, for shorts)') return !!metrics.oteBearish;
+      return false;
+    case 'orderBlock':
+      if(cond.operator==='bullish') return !!metrics.freshBullishOB;
+      if(cond.operator==='bearish') return !!metrics.freshBearishOB;
+      return false;
+    case 'breakerBlock':
+      if(cond.operator==='bullish') return !!metrics.bullishBreaker;
+      if(cond.operator==='bearish') return !!metrics.bearishBreaker;
+      return false;
+    case 'equalLevels':
+      if(cond.operator==='equal highs nearby') return !!metrics.equalHighsNearby;
+      if(cond.operator==='equal lows nearby') return !!metrics.equalLowsNearby;
+      return false;
+    case 'premiumDiscount':
+      if(cond.operator==='premium (upper half)') return !!metrics.premiumZone;
+      if(cond.operator==='discount (lower half)') return !!metrics.discountZone;
+      return false;
+    case 'ndogNwog':
+      if(!metrics.ndogNwog) return false;
+      if(cond.operator==='daily gap above') return !!(metrics.ndogNwog.ndog?.present && metrics.ndogNwog.ndog.unfilled && metrics.ndogNwog.ndog.above);
+      if(cond.operator==='daily gap below') return !!(metrics.ndogNwog.ndog?.present && metrics.ndogNwog.ndog.unfilled && metrics.ndogNwog.ndog.below);
+      if(cond.operator==='weekly gap above') return !!(metrics.ndogNwog.nwog?.present && metrics.ndogNwog.nwog.unfilled && metrics.ndogNwog.nwog.above);
+      if(cond.operator==='weekly gap below') return !!(metrics.ndogNwog.nwog?.present && metrics.ndogNwog.nwog.unfilled && metrics.ndogNwog.nwog.below);
+      return false;
+    default:
+      if(v===null || v===undefined || !Number.isFinite(v)) return false;
+      if(cond.operator==='>') return v > cond.value;
+      if(cond.operator==='<') return v < cond.value;
+      return false;
+  }
+}
+function evaluateAll(metrics){
+  if(!conditions.length) return { passed:true, matched:[] };
+  const flags = conditions.map(c => evalCondition(metrics, c));
+  const passed = matchMode==='all' ? flags.every(Boolean) : flags.some(Boolean);
+  const matched = conditions.filter((c,i)=>flags[i]).map(c=>METRIC_BY_KEY[c.metric].label);
+  return { passed, matched };
+}
+
+/* =========================================================================
+   Presets
+   ========================================================================= */
+const PRESETS = [
+  // ---- Momentum / reversal ----
+  { id:'oversold', cat:'Momentum', icon:'↺', color:'linear-gradient(135deg,#35e0c0,#1c8f79)', title:'Oversold reversal', desc:'RSI under 30 while price still holds above EMA200',
+    conds:[{metric:'rsi',operator:'<',value:30},{metric:'priceVsEma200',operator:'above',value:null}], mode:'all' },
+  { id:'overbought', cat:'Momentum', icon:'↻', color:'linear-gradient(135deg,#ff8a4c,#c2501a)', title:'Overbought reversal', desc:'RSI over 70 while price still sits below EMA200',
+    conds:[{metric:'rsi',operator:'>',value:70},{metric:'priceVsEma200',operator:'below',value:null}], mode:'all' },
+  { id:'gainers', cat:'Momentum', icon:'▲', color:'linear-gradient(135deg,#35e0c0,#1c8f79)', title:'Top gainers (24h)', desc:'24h change above 3% — this session\'s strongest movers',
+    conds:[{metric:'change24h',operator:'>',value:3}], mode:'all' },
+  { id:'losers', cat:'Momentum', icon:'▼', color:'linear-gradient(135deg,#ff5470,#a3223a)', title:'Top losers (24h)', desc:'24h change below -3% — this session\'s weakest movers',
+    conds:[{metric:'change24h',operator:'<',value:-3}], mode:'all' },
+  { id:'bigmove', cat:'Momentum', icon:'⇕', color:'linear-gradient(135deg,#8ea9ff,#3a54b8)', title:'Big movers (either direction)', desc:'24h move beyond ±7% — outsized moves worth a look either way',
+    conds:[{metric:'change24h',operator:'>',value:7},{metric:'change24h',operator:'<',value:-7}], mode:'any' },
+  { id:'stochbull', cat:'Momentum', icon:'⤴', color:'linear-gradient(135deg,#35e0c0,#1c8f79)', title:'Stoch RSI bullish cross', desc:'Stochastic RSI just crossed up out of oversold (<20)',
+    conds:[{metric:'stochRsiK',operator:'crossed up (from oversold)',value:null}], mode:'all' },
+  { id:'stochbear', cat:'Momentum', icon:'⤵', color:'linear-gradient(135deg,#ff5470,#a3223a)', title:'Stoch RSI bearish cross', desc:'Stochastic RSI just crossed down out of overbought (>80)',
+    conds:[{metric:'stochRsiK',operator:'crossed down (from overbought)',value:null}], mode:'all' },
+  { id:'bulldiv', cat:'Momentum', icon:'⌇', color:'linear-gradient(135deg,#35e0c0,#1c8f79)', title:'Bullish RSI divergence', desc:'Price prints a lower low while RSI prints a higher low',
+    conds:[{metric:'bullishDivergence',operator:'detected',value:null}], mode:'all' },
+  { id:'beardiv', cat:'Momentum', icon:'⌇', color:'linear-gradient(135deg,#ff5470,#a3223a)', title:'Bearish RSI divergence', desc:'Price prints a higher high while RSI prints a lower high',
+    conds:[{metric:'bearishDivergence',operator:'detected',value:null}], mode:'all' },
+  { id:'ath', cat:'Momentum', icon:'★', color:'linear-gradient(135deg,#f0c24b,#b8860b)', title:'At all-time high', desc:'Within 0.5× ATR of its all-time high (from full daily history) — strongest possible trend location',
+    conds:[{metric:'athProximityAtr',operator:'<',value:0.5}], mode:'all' },
+  // ---- Trend / structure ----
+  { id:'breakout', cat:'Trend', icon:'⚡', color:'linear-gradient(135deg,#ff8a4c,#c2501a)', title:'Momentum breakout', desc:'24h move over 5% backed by a 2× volume surge',
+    conds:[{metric:'change24h',operator:'>',value:5},{metric:'volRatio',operator:'>',value:2}], mode:'all' },
+  { id:'golden', cat:'Trend', icon:'✕', color:'linear-gradient(135deg,#f0c24b,#b8860b)', title:'Golden cross', desc:'EMA20 has just crossed above EMA50',
+    conds:[{metric:'emaTrend',operator:'just crossed up',value:null}], mode:'all' },
+  { id:'death', cat:'Trend', icon:'╳', color:'linear-gradient(135deg,#ff5470,#a3223a)', title:'Death cross', desc:'EMA20 has just crossed below EMA50',
+    conds:[{metric:'emaTrend',operator:'just crossed down',value:null}], mode:'all' },
+  { id:'trending', cat:'Trend', icon:'➤', color:'linear-gradient(135deg,#8ea9ff,#3a54b8)', title:'Strong trend (ADX)', desc:'ADX above 25 — a real trend, not just chop',
+    conds:[{metric:'adx',operator:'>',value:25}], mode:'all' },
+  // ---- Volatility ----
+  { id:'squeeze', cat:'Volatility', icon:'▭', color:'linear-gradient(135deg,#a78bfa,#6d28d9)', title:'Volatility squeeze', desc:'Bollinger width under 4% — coiling before a move',
+    conds:[{metric:'bbWidthPct',operator:'<',value:4}], mode:'all' },
+  { id:'squeezebreak', cat:'Volatility', icon:'◫', color:'linear-gradient(135deg,#a78bfa,#6d28d9)', title:'Squeeze breakout', desc:'Still tight (BB width <6%) but volume already surging 2×',
+    conds:[{metric:'bbWidthPct',operator:'<',value:6},{metric:'volRatio',operator:'>',value:2}], mode:'all' },
+  // ---- Volume ----
+  { id:'surge', cat:'Volume', icon:'▲', color:'linear-gradient(135deg,#5b8cff,#2b4fb0)', title:'Volume surge', desc:'Current bar trading at 3× its 20-bar average volume',
+    conds:[{metric:'volRatio',operator:'>',value:3}], mode:'all' },
+  { id:'nearhigh', cat:'Volume', icon:'◆', color:'linear-gradient(135deg,#ff5470,#a3223a)', title:'Near 24h high', desc:'Trading within 1% of its 24h high — strength',
+    conds:[{metric:'nearHighPct',operator:'<',value:1}], mode:'all' },
+  { id:'nearlow', cat:'Volume', icon:'◇', color:'linear-gradient(135deg,#35e0c0,#1c8f79)', title:'Near 24h low', desc:'Trading within 1% of its 24h low — potential capitulation',
+    conds:[{metric:'nearLowPct',operator:'<',value:1}], mode:'all' },
+  // ---- Derivatives (funding / open interest) ----
+  { id:'shortsqueeze', cat:'Derivatives', icon:'⇑', color:'linear-gradient(135deg,#35e0c0,#1c8f79)', title:'Short squeeze setup', desc:'Negative funding (shorts paying) + RSI under 35',
+    conds:[{metric:'fundingRate',operator:'<',value:0},{metric:'rsi',operator:'<',value:35}], mode:'all' },
+  { id:'overheated', cat:'Derivatives', icon:'⇓', color:'linear-gradient(135deg,#ff8a4c,#c2501a)', title:'Overheated longs', desc:'Funding rate above 0.05% — crowded longs, squeeze-down risk',
+    conds:[{metric:'fundingRate',operator:'>',value:0.05}], mode:'all' },
+  { id:'oisurge', cat:'Derivatives', icon:'⬆', color:'linear-gradient(135deg,#8ea9ff,#3a54b8)', title:'Open interest surge', desc:'Open interest up 15%+ over ~24h — fresh capital entering',
+    conds:[{metric:'oiChangePct',operator:'>',value:15}], mode:'all' },
+  { id:'oiprice', cat:'Derivatives', icon:'⬈', color:'linear-gradient(135deg,#f0c24b,#b8860b)', title:'Fresh positioning', desc:'Open interest rising 10%+ alongside a positive 24h price move',
+    conds:[{metric:'oiChangePct',operator:'>',value:10},{metric:'change24h',operator:'>',value:0}], mode:'all' },
+  // ---- ICT / Smart Money Concepts ----
+  { id:'ictFvgBull', cat:'ICT', icon:'▦', color:'linear-gradient(135deg,#35e0c0,#1c8f79)', title:'Bullish FVG (unmitigated)', desc:'An unfilled bullish fair value gap still sits below price',
+    conds:[{metric:'fvgBullish',operator:'unmitigated only',value:null}], mode:'all' },
+  { id:'ictFvgBear', cat:'ICT', icon:'▧', color:'linear-gradient(135deg,#ff5470,#a3223a)', title:'Bearish FVG (unmitigated)', desc:'An unfilled bearish fair value gap still sits above price',
+    conds:[{metric:'fvgBearish',operator:'unmitigated only',value:null}], mode:'all' },
+  { id:'ictSweepBull', cat:'ICT', icon:'⇈', color:'linear-gradient(135deg,#35e0c0,#1c8f79)', title:'Bullish liquidity sweep', desc:'Last candle swept sell-side liquidity (wicked below a swing low) and closed back above it',
+    conds:[{metric:'liquiditySweep',operator:'bullish (sell-side swept)',value:null}], mode:'all' },
+  { id:'ictSweepBear', cat:'ICT', icon:'⇊', color:'linear-gradient(135deg,#ff5470,#a3223a)', title:'Bearish liquidity sweep', desc:'Last candle swept buy-side liquidity (wicked above a swing high) and closed back below it',
+    conds:[{metric:'liquiditySweep',operator:'bearish (buy-side swept)',value:null}], mode:'all' },
+  { id:'ictBosBull', cat:'ICT', icon:'↗', color:'linear-gradient(135deg,#8ea9ff,#3a54b8)', title:'Bullish BOS', desc:'Price just closed above the last swing high, continuing an already-bullish structure',
+    conds:[{metric:'structureShift',operator:'bullish BOS',value:null}], mode:'all' },
+  { id:'ictBosBear', cat:'ICT', icon:'↘', color:'linear-gradient(135deg,#8ea9ff,#3a54b8)', title:'Bearish BOS', desc:'Price just closed below the last swing low, continuing an already-bearish structure',
+    conds:[{metric:'structureShift',operator:'bearish BOS',value:null}], mode:'all' },
+  { id:'ictChochBull', cat:'ICT', icon:'⤴', color:'linear-gradient(135deg,#f0c24b,#b8860b)', title:'Bullish CHoCH', desc:'Price just closed above the last swing high against a prior bearish structure — earliest reversal signal',
+    conds:[{metric:'structureShift',operator:'bullish CHoCH',value:null}], mode:'all' },
+  { id:'ictChochBear', cat:'ICT', icon:'⤵', color:'linear-gradient(135deg,#f0c24b,#b8860b)', title:'Bearish CHoCH', desc:'Price just closed below the last swing low against a prior bullish structure — earliest reversal signal',
+    conds:[{metric:'structureShift',operator:'bearish CHoCH',value:null}], mode:'all' },
+  { id:'ictDispBull', cat:'ICT', icon:'⚡', color:'linear-gradient(135deg,#35e0c0,#1c8f79)', title:'Bullish displacement', desc:'Current candle body is 1.8×+ ATR to the upside — an aggressive, institutional-looking push',
+    conds:[{metric:'displacement',operator:'bullish',value:null}], mode:'all' },
+  { id:'ictDispBear', cat:'ICT', icon:'⚡', color:'linear-gradient(135deg,#ff5470,#a3223a)', title:'Bearish displacement', desc:'Current candle body is 1.8×+ ATR to the downside — an aggressive, institutional-looking push',
+    conds:[{metric:'displacement',operator:'bearish',value:null}], mode:'all' },
+  { id:'ictOteBull', cat:'ICT', icon:'◐', color:'linear-gradient(135deg,#35e0c0,#1c8f79)', title:'Bullish OTE zone', desc:'Price is retracing into the 61.8%-79% zone of the latest up-leg — classic long entry area',
+    conds:[{metric:'oteZone',operator:'bullish (discount, for longs)',value:null}], mode:'all' },
+  { id:'ictOteBear', cat:'ICT', icon:'◑', color:'linear-gradient(135deg,#ff5470,#a3223a)', title:'Bearish OTE zone', desc:'Price is retracing into the 61.8%-79% zone of the latest down-leg — classic short entry area',
+    conds:[{metric:'oteZone',operator:'bearish (premium, for shorts)',value:null}], mode:'all' },
+  { id:'ictObBull', cat:'ICT', icon:'▣', color:'linear-gradient(135deg,#f0c24b,#b8860b)', title:'Fresh bullish order block', desc:'Sweep + fresh FVG + a bullish structure break all landed together — high-confluence long zone',
+    conds:[{metric:'orderBlock',operator:'bullish',value:null}], mode:'all' },
+  { id:'ictObBear', cat:'ICT', icon:'▤', color:'linear-gradient(135deg,#f0c24b,#b8860b)', title:'Fresh bearish order block', desc:'Sweep + fresh FVG + a bearish structure break all landed together — high-confluence short zone',
+    conds:[{metric:'orderBlock',operator:'bearish',value:null}], mode:'all' },
+  { id:'ictBreakerBull', cat:'ICT', icon:'⟲', color:'linear-gradient(135deg,#a78bfa,#6d28d9)', title:'Bullish breaker block', desc:'A sell-side sweep failed to hold and structure flipped bullish instead — the failed-short flip',
+    conds:[{metric:'breakerBlock',operator:'bullish',value:null}], mode:'all' },
+  { id:'ictBreakerBear', cat:'ICT', icon:'⟳', color:'linear-gradient(135deg,#a78bfa,#6d28d9)', title:'Bearish breaker block', desc:'A buy-side sweep failed to hold and structure flipped bearish instead — the failed-long flip',
+    conds:[{metric:'breakerBlock',operator:'bearish',value:null}], mode:'all' },
+  { id:'ictEqHighs', cat:'ICT', icon:'≡', color:'linear-gradient(135deg,#8ea9ff,#3a54b8)', title:'Equal highs nearby', desc:'A cluster of untapped equal highs sits close to price — resting buy-side liquidity',
+    conds:[{metric:'equalLevels',operator:'equal highs nearby',value:null}], mode:'all' },
+  { id:'ictEqLows', cat:'ICT', icon:'≡', color:'linear-gradient(135deg,#8ea9ff,#3a54b8)', title:'Equal lows nearby', desc:'A cluster of untapped equal lows sits close to price — resting sell-side liquidity',
+    conds:[{metric:'equalLevels',operator:'equal lows nearby',value:null}], mode:'all' },
+  { id:'ictDiscount', cat:'ICT', icon:'▼', color:'linear-gradient(135deg,#35e0c0,#1c8f79)', title:'Discount zone (long bias)', desc:'Price sits in the lower half of its recent dealing range — ICT\'s favored zone for longs',
+    conds:[{metric:'premiumDiscount',operator:'discount (lower half)',value:null}], mode:'all' },
+  { id:'ictPremium', cat:'ICT', icon:'▲', color:'linear-gradient(135deg,#ff5470,#a3223a)', title:'Premium zone (short bias)', desc:'Price sits in the upper half of its recent dealing range — ICT\'s favored zone for shorts',
+    conds:[{metric:'premiumDiscount',operator:'premium (upper half)',value:null}], mode:'all' },
+  { id:'ictGapAbove', cat:'ICT', icon:'⬒', color:'linear-gradient(135deg,#f0c24b,#b8860b)', title:'Unfilled opening gap above', desc:'An unfilled daily or weekly opening gap (NDOG/NWOG) sits above current price',
+    conds:[{metric:'ndogNwog',operator:'daily gap above',value:null},{metric:'ndogNwog',operator:'weekly gap above',value:null}], mode:'any' },
+  { id:'ictGapBelow', cat:'ICT', icon:'⬓', color:'linear-gradient(135deg,#f0c24b,#b8860b)', title:'Unfilled opening gap below', desc:'An unfilled daily or weekly opening gap (NDOG/NWOG) sits below current price',
+    conds:[{metric:'ndogNwog',operator:'daily gap below',value:null},{metric:'ndogNwog',operator:'weekly gap below',value:null}], mode:'any' },
+];
+const PRESET_CATEGORY_ORDER = ['Momentum','Trend','Volatility','Volume','Derivatives','ICT'];
+const RECENT_PRESETS_KEY = 'scn-recent-presets-v1';
+const RECENT_PRESETS_MAX = 4;
+function getRecentPresetIds(){
+  let ids = [];
+  try{ ids = JSON.parse(localStorage.getItem(RECENT_PRESETS_KEY)) || []; }catch(e){ ids = []; }
+  return ids.filter(id => PRESETS.some(p=>p.id===id));
+}
+function recordRecentPreset(id){
+  let ids = getRecentPresetIds().filter(x=>x!==id);
+  ids.unshift(id);
+  ids = ids.slice(0, RECENT_PRESETS_MAX);
+  try{ localStorage.setItem(RECENT_PRESETS_KEY, JSON.stringify(ids)); }catch(e){ /* storage unavailable */ }
+}
+function getRecentPresetItems(){
+  // Top N recently-used presets; if fewer than N have been used yet, pad
+  // with the next unused presets (in default order) so the section always
+  // shows a full row of useful starting points.
+  const ids = getRecentPresetIds();
+  const items = ids.map(id => PRESETS.find(p=>p.id===id)).filter(Boolean);
+  for(const p of PRESETS){
+    if(items.length >= RECENT_PRESETS_MAX) break;
+    if(!items.some(x=>x.id===p.id)) items.push(p);
+  }
+  return items.slice(0, RECENT_PRESETS_MAX);
+}
+function renderPresetCard(p, domId){
+  return `
+    <div class="preset-card" id="${domId}" data-preset-id="${p.id}" style="--pc-color:${p.color};" onclick="Scanner.applyPreset('${p.id}')">
+      <div class="pc-head">
+        <div class="pc-icon" style="background:${p.color};color:#04140F;">${p.icon}</div>
+        <div class="pc-title">${p.title}</div>
+      </div>
+      <div class="pc-desc-wrap"><div class="pc-desc">${p.desc}</div></div>
+    </div>`;
+}
+function renderPresets(){
+  const recentItems = getRecentPresetItems();
+  let html = `
+    <details class="preset-group" id="preset-group-Recent" open>
+      <summary>
+        <span class="pg-name">Recently used</span>
+        <span class="pg-count">${recentItems.length}</span>
+        <span class="pg-chevron">▾</span>
+      </summary>
+      <div class="preset-cards-grid">
+        ${recentItems.map(p => renderPresetCard(p, `preset-recent-${p.id}`)).join('')}
+      </div>
+    </details>`;
+  for(const cat of PRESET_CATEGORY_ORDER){
+    const items = PRESETS.filter(p=>p.cat===cat);
+    if(!items.length) continue;
+    html += `
+      <details class="preset-group" id="preset-group-${cat}">
+        <summary>
+          <span class="pg-name">${cat}</span>
+          <span class="pg-count">${items.length}</span>
+          <span class="pg-chevron">▾</span>
+        </summary>
+        <div class="preset-cards-grid">
+          ${items.map(p => renderPresetCard(p, `preset-${p.id}`)).join('')}
+        </div>
+      </details>`;
+  }
+  document.getElementById('scnPresetGrid').innerHTML = html;
+}
+function applyPreset(id){
+  const preset = PRESETS.find(p=>p.id===id);
+  if(!preset) return;
+  conditions = preset.conds.map(c=>({...c}));
+  matchMode = preset.mode;
+  setMatchMode(preset.mode);
+  renderChips();
+  recordRecentPreset(id);
+  renderPresets();
+  document.querySelectorAll(`.preset-card[data-preset-id="${id}"]`).forEach(c=>c.classList.add('active'));
+  const group = document.getElementById(`preset-group-${preset.cat}`);
+  if(group) group.open = true;
+}
+
+/* =========================================================================
+   "Custom screens matched" — checks a single coin (opened from the
+   Screener's analysis modal) against all Scanner presets, independent of
+   whichever conditions/preset happen to be active in the Scanner tab.
+   ========================================================================= */
+function evalPresetAgainstMetrics(metrics, preset){
+  const flags = preset.conds.map(c => evalCondition(metrics, c));
+  return preset.mode === 'all' ? flags.every(Boolean) : flags.some(Boolean);
+}
+// Whether ICT/Smart Money screens are included in the "Scanner screens
+// matched" popover — off by default (unchecked) so the count/list starts
+// scoped to the 23 non-ICT screens; checking the box brings ICT's 22 in too
+// (45 total).
+let includeIct = false;
+// Cached inputs from the most recent successful check, so toggling the ICT
+// checkbox can re-render instantly without refetching from the exchange.
+let lastScreenMatch = null; // { symbol, interval, metrics }
+function setIncludeIct(checked){
+  includeIct = !!checked;
+  if(lastScreenMatch){
+    renderScreenMatches(lastScreenMatch.symbol, lastScreenMatch.interval, lastScreenMatch.metrics);
+  }
+}
+async function openScreenMatch(event){
+  if(event) event.stopPropagation();
+  const symbol = currentExchangeSymbol;
+  if(!symbol) return;
+  const modal = document.getElementById('screenMatchModal');
+  const body = document.getElementById('screenMatchBody');
+  document.getElementById('screenMatchSubtitle').textContent = symbol;
+  const ictToggle = document.getElementById('screenMatchIctToggle');
+  if(ictToggle) ictToggle.checked = includeIct;
+  body.innerHTML = `<div class="screen-match-status">Checking ${symbol} against all ${PRESETS.length} custom screens…</div>`;
+  modal.classList.add('open');
+  try{
+    const interval = currentAnalysisInterval || '4h';
+    const ticker = await get24hTickerSingle(symbol);
+    const metrics = await computeMetrics(symbol, interval, ticker);
+    const [fundingRate, oiChangePct, athProximityAtr, ndogNwog] = await Promise.all([
+      getFundingRateSingle(symbol).catch(()=>null),
+      getOiChangePct(symbol).catch(()=>null),
+      getAthProximityAtr(symbol, metrics.price).catch(()=>null),
+      getNdogNwog(symbol, metrics.price).catch(()=>null),
+    ]);
+    metrics.fundingRate = fundingRate;
+    metrics.oiChangePct = oiChangePct;
+    metrics.athProximityAtr = athProximityAtr;
+    metrics.ndogNwog = ndogNwog;
+    lastScreenMatch = { symbol, interval, metrics };
+    renderScreenMatches(symbol, interval, metrics);
+  }catch(e){
+    body.innerHTML = `<div class="screen-match-status">Couldn't check custom screens for ${symbol}: ${e.message}</div>`;
+  }
+}
+function closeScreenMatch(event){
+  if(event && event.target !== document.getElementById('screenMatchModal')) return;
+  document.getElementById('screenMatchModal').classList.remove('open');
+}
+function renderScreenMatches(symbol, interval, metrics){
+  // ICT/Smart Money screens are only included when the checkbox is checked —
+  // everything else (matched count, category groups, total shown as
+  // matched/total) is scoped to the presets currently in play.
+  const presets = includeIct ? PRESETS : PRESETS.filter(p => p.cat !== 'ICT');
+  const categories = includeIct ? PRESET_CATEGORY_ORDER : PRESET_CATEGORY_ORDER.filter(c => c !== 'ICT');
+  const results = presets.map(p => ({ preset: p, matched: evalPresetAgainstMetrics(metrics, p) }));
+  const matchedCount = results.filter(r => r.matched).length;
+
+  const rowHtml = ({preset:p, matched}) => `
+    <div class="screen-match-row${matched?' matched':''}" style="--sm-color:${p.color};">
+      <div class="smr-icon" style="background:${p.color};">${p.icon}</div>
+      <div class="smr-title">${p.title}</div>
+      <div class="smr-badge">${matched?'Match':'—'}</div>
+    </div>`;
+
+  // Matched screens across every category, pulled to the very top so the
+  // headline result doesn't require scrolling through unmatched screens.
+  const matchedResults = results.filter(r => r.matched);
+  const matchedHtml = matchedResults.length ? `
+      <div class="screen-match-group">
+        <div class="screen-match-group-name">Matched</div>
+        <div class="screen-match-list">${matchedResults.map(rowHtml).join('')}</div>
+      </div>` : '';
+
+  let groupsHtml = '';
+  for(const cat of categories){
+    const items = results.filter(r => r.preset.cat === cat).sort((a,b)=> (b.matched-a.matched));
+    if(!items.length) continue;
+    groupsHtml += `
+      <div class="screen-match-group">
+        <div class="screen-match-group-name">${cat}</div>
+        <div class="screen-match-list">${items.map(rowHtml).join('')}</div>
+      </div>`;
+  }
+
+  document.getElementById('screenMatchBody').innerHTML = `
+    <div class="screen-match-summary">
+      <span class="smc-count">${matchedCount}/${presets.length}</span>
+      <div class="smc-copy">
+        <span class="smc-label">${symbol} matches ${matchedCount} custom screen${matchedCount===1?'':'s'}</span>
+        <span class="smc-sub">Checked on the ${timeframeLabel(interval)} timeframe</span>
+      </div>
+    </div>
+    ${matchedHtml}
+    ${groupsHtml}`;
+}
+
+/* =========================================================================
+   Scan execution
+   ========================================================================= */
+function setStatus(msg){ document.getElementById('scnStatusText').textContent = msg; }
+function showError(msg){ const b=document.getElementById('scnErrorBox'); b.style.display='block'; b.innerHTML=msg; }
+function hideError(){ document.getElementById('scnErrorBox').style.display='none'; }
+
+const SCN_DEFAULT_VOLUME_BY_TF = { '1h':3000000, '4h':3000000, '1d':10000000, '1w':10000000 };
+document.getElementById('scnTfToggle').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-tf]');
+  if(!btn) return;
+  document.querySelectorAll('#scnTfToggle button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentInterval = btn.dataset.tf;
+  document.getElementById('scnMinVolume').value = SCN_DEFAULT_VOLUME_BY_TF[currentInterval] ?? 3000000;
+});
+
+async function runScan(){
+  hideError();
+  const btn = document.getElementById('scnRunBtn');
+  btn.disabled = true; btn.classList.add('loading');
+  document.getElementById('scnRunBtnLabel').textContent = 'Scanning…';
+  const progressWrap = document.getElementById('scnProgressWrap');
+  const progressFill = document.getElementById('scnProgressFill');
+  const progressPct = document.getElementById('scnProgressPct');
+  progressWrap.style.display = 'block';
+  progressFill.style.width = '0%'; progressPct.textContent = '0%';
+
+  const minVol = parseFloat(document.getElementById('scnMinVolume').value) || 0;
+  const concurrency = 8; // fixed — no UI control (kept simple for mobile)
+
+  try{
+    setStatus('Fetching USDT-M perpetual futures symbol list…');
+    const symbols = await getUSDTPerpetualSymbols();
+    document.getElementById('scnTbUniverse').textContent = symbols.length;
+    setStatus('Fetching 24h tickers…');
+    const tickers = await get24hTickers();
+    setStatus('Fetching funding rates…');
+    const fundingMap = await getAllFundingRates().catch(()=>({}));
+    // Open interest has no bulk endpoint — only pay for it (one extra call per
+    // symbol) when a condition actually needs it.
+    const needsOi = conditions.some(c => c.metric === 'oiChangePct');
+    // ATH lookup pulls a full 1500-bar daily history per symbol — the heaviest
+    // optional fetch, so it's likewise gated behind an active condition.
+    const needsAth = conditions.some(c => c.metric === 'athProximityAtr');
+    // NDOG/NWOG needs its own daily+weekly klines call per symbol — gated the
+    // same way as OI/ATH above.
+    const needsNdog = conditions.some(c => c.metric === 'ndogNwog');
+
+    setStatus(needsAth
+      ? `Scanning all ${symbols.length} USDT-M perpetuals (fetching full daily history for ATH)…`
+      : `Scanning all ${symbols.length} USDT-M perpetuals…`);
+
+    const raw = await runPool(symbols, async (symbol) => {
+      const ticker = tickers[symbol];
+      const metrics = await computeMetrics(symbol, currentInterval, ticker);
+      const funding = fundingMap[symbol];
+      metrics.fundingRate = funding ? funding.rate : null;
+      metrics.fundingNextTime = funding ? funding.nextFundingTime : null;
+      if(needsOi) metrics.oiChangePct = await getOiChangePct(symbol);
+      if(needsAth) metrics.athProximityAtr = await getAthProximityAtr(symbol, metrics.price);
+      if(needsNdog) metrics.ndogNwog = await getNdogNwog(symbol, metrics.price);
+      const { passed, matched } = evaluateAll(metrics);
+      const volumeOk = (metrics.quoteVolume24h ?? 0) >= minVol;
+      return { ...metrics, passed: passed && volumeOk, matched };
+    }, concurrency, (done,total)=>{
+      const pct = (done/total*100).toFixed(0);
+      progressFill.style.width = `${pct}%`;
+      progressPct.textContent = `${pct}%`;
+      setStatus(`Scanning… ${done}/${total}`);
+    });
+
+    const scanned = raw.filter(r => r && !r.error);
+    const failedCount = raw.length - scanned.length;
+    allResults = scanned.filter(r => r.passed);
+
+    document.getElementById('scnTbLastScan').textContent = new Date().toLocaleTimeString();
+    setStatus(`Done — ${allResults.length} matches out of ${symbols.length} scanned (${failedCount} skipped, below-volume excluded).`);
+    sortAndRender();
+  }catch(e){
+    showError(`Error: <b>${e.message}</b><br><br>This usually means Binance's Futures API couldn't be reached — check your internet connection, or that Binance isn't blocked on your network/VPN.`);
+    setStatus('Failed.');
+  }finally{
+    btn.disabled = false; btn.classList.remove('loading');
+    document.getElementById('scnRunBtnLabel').textContent = 'Run scan';
+    setTimeout(()=>{ progressWrap.style.display='none'; progressPct.textContent=''; }, 900);
+  }
+}
+
+/* =========================================================================
+   Rendering results
+   ========================================================================= */
+const SORT_LABELS = { symbol:'Symbol', price:'Price', change24h:'24h %', rsi:'RSI', macdHist:'MACD', volRatio:'Vol ×', matchCount:'Matched' };
+function sortAndRender(){
+  let rows = [...allResults];
+  rows.sort((a,b)=>{
+    let av, bv;
+    if(sortKey==='matchCount'){ av=a.matched.length; bv=b.matched.length; }
+    else { av=a[sortKey]; bv=b[sortKey]; }
+    if(typeof av==='string') return sortDir*String(av).localeCompare(String(bv));
+    return sortDir*(((av??-Infinity))-((bv??-Infinity)));
+  });
+  renderTable(rows);
+}
+function setSort(key){
+  if(sortKey===key) sortDir *= -1; else { sortKey=key; sortDir = key==='symbol' ? 1 : -1; }
+  sortAndRender();
+}
+
+function fmtNum(n,d=2){ return (n===null||n===undefined||!Number.isFinite(n)) ? '—' : n.toFixed(d); }
+function fmtVol(n){
+  if(n===null||n===undefined||!Number.isFinite(n)) return '—';
+  if(n>=1e9) return '$'+(n/1e9).toFixed(2)+'B';
+  if(n>=1e6) return '$'+(n/1e6).toFixed(2)+'M';
+  if(n>=1e3) return '$'+(n/1e3).toFixed(1)+'K';
+  return '$'+n.toFixed(0);
+}
+function fmtPrice(n){
+  if(!Number.isFinite(n)) return '—';
+  if(n>=100) return n.toFixed(2);
+  if(n>=1) return n.toFixed(4);
+  return n.toFixed(6);
+}
+const PALETTE = ['#35e0c0','#8ea9ff','#ff8a4c','#a78bfa','#f5a623','#ff5470','#5b8cff','#f0c24b'];
+function colorForSymbol(sym){ let h=0; for(let i=0;i<sym.length;i++) h=(h*31+sym.charCodeAt(i))>>>0; return PALETTE[h%PALETTE.length]; }
+function sparkSVG(values, up){
+  if(!values || values.length<2) return '';
+  const w=90,h=28,pad=2;
+  const min=Math.min(...values), max=Math.max(...values);
+  const range = (max-min)||1;
+  const pts = values.map((v,i)=>{
+    const x = pad + (i/(values.length-1))*(w-2*pad);
+    const y = h-pad-((v-min)/range)*(h-2*pad);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  const color = up ? 'var(--accent)' : 'var(--red)';
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+}
+
+const WATCHLIST_CUSTOM_KEY = 'crypto-watchlist-custom-coins';
+const WATCHLIST_DEFAULT_SYMBOLS = new Set(['BTCUSDT','ETHUSDT']);
+function loadWatchlistCustomCoins(){
+  try{ const raw = localStorage.getItem(WATCHLIST_CUSTOM_KEY); const list = raw?JSON.parse(raw):[]; return Array.isArray(list)?list:[]; }
+  catch(e){ return []; }
+}
+function isInWatchlist(sym){ return WATCHLIST_DEFAULT_SYMBOLS.has(sym) || loadWatchlistCustomCoins().some(c=>c && c.binanceSymbol===sym); }
+function addToWatchlist(sym, btn){
+  if(isInWatchlist(sym)) return;
+  const base = sym.replace(/USDT$/i,'');
+  const list = loadWatchlistCustomCoins();
+  list.push({ symbol:base, binanceSymbol:sym, name:base, coingeckoId:null, gradient:`linear-gradient(135deg,${colorForSymbol(sym)},#1c8f79)`, addedAt:Date.now() });
+  try{ localStorage.setItem(WATCHLIST_CUSTOM_KEY, JSON.stringify(list)); }catch(e){ return; }
+  if(btn){ btn.textContent='✓'; btn.classList.add('added'); btn.onclick=null; }
+}
+
+function renderTable(rows){
+  document.getElementById('scnResultsCountN').textContent = rows.length;
+  const body = document.getElementById('scnResultsBody');
+  if(!rows.length){
+    body.innerHTML = `<div class="empty-state">
+      <div class="es-icon">◎</div>
+      <div class="es-title">No matches</div>
+      <div class="es-sub">Nothing in the current universe satisfies these conditions. Try loosening a threshold, switching to ANY match, or scanning a different timeframe.</div>
+    </div>`;
+    return;
+  }
+  const headCell = (key,label) => `<th class="${sortKey===key?'sorted':''}" onclick="Scanner.setSort('${key}')">${label}${sortKey===key?(sortDir===1?' ↑':' ↓'):''}</th>`;
+  body.innerHTML = `
+    <div class="table-scroll">
+    <table>
+      <thead><tr>
+        ${headCell('symbol','Symbol')}
+        ${headCell('price','Price')}
+        ${headCell('change24h','24h %')}
+        <th>Trend</th>
+        <th>Chart</th>
+        ${headCell('rsi','RSI')}
+        <th>MACD</th>
+        ${headCell('volRatio','Vol ×')}
+        ${headCell('matchCount','Matched')}
+        <th>WL</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(r => renderRow(r)).join('')}
+      </tbody>
+    </table>
+    </div>`;
+}
+function renderRow(r){
+  const base = r.symbol.replace(/USDT$/,'');
+  const up = r.change24h >= 0;
+  const color = colorForSymbol(r.symbol);
+  const trendBadge = r.priceAboveEma200===null ? `<span class="badge badge-neutral">—</span>`
+    : r.priceAboveEma200 ? `<span class="badge badge-bull">▲ above EMA200</span>` : `<span class="badge badge-bear">▼ below EMA200</span>`;
+  const tvUrl = `https://www.tradingview.com/chart/?symbol=BINANCE:${r.symbol}.P`;
+  const already = isInWatchlist(r.symbol);
+  return `<tr>
+    <td><div class="sym-cell">
+      <div class="sym-badge" style="background:linear-gradient(135deg,${color},#151821);">${base.slice(0,4)}</div>
+      <div><div class="sym-name">${base}</div><div class="sym-sub">USDT-M PERP</div></div>
+    </div></td>
+    <td class="mono">${fmtPrice(r.price)}</td>
+    <td class="mono ${up?'chg-pos':'chg-neg'}">${up?'+':''}${fmtNum(r.change24h,2)}%</td>
+    <td>${trendBadge}</td>
+    <td>${sparkSVG(r.spark, up)}</td>
+    <td class="mono">${fmtNum(r.rsi,1)}</td>
+    <td class="mono ${r.macdHist>0?'chg-pos':(r.macdHist<0?'chg-neg':'')}">${fmtNum(r.macdHist,4)}</td>
+    <td class="mono">${r.volRatio!==null?fmtNum(r.volRatio,2)+'×':'—'}</td>
+    <td><div class="matched-chips">${r.matched.map(m=>`<span class="matched-chip">${m}</span>`).join('') || '<span class="matched-chip">any</span>'}</div></td>
+    <td><div class="row-actions">
+      <a class="icon-btn" href="${tvUrl}" target="_blank" rel="noopener noreferrer" title="Open chart">↗</a>
+      <button class="icon-btn${already?' added':''}" ${already?'disabled':''} onclick="Scanner.addToWatchlist('${r.symbol}', this)" title="Add to watchlist">${already?'✓':'+'}</button>
+    </div></td>
+  </tr>`;
+}
+
+function exportCSV(){
+  if(!allResults.length) return;
+  const cols = ['symbol','price','change24h','rsi','stochRsiK','macdHist','adx','volRatio','bbWidthPct','atrPct','fundingRate','oiChangePct','athProximityAtr','matched'];
+  const lines = [cols.join(',')].concat(allResults.map(r => cols.map(c => {
+    if(c==='matched') return `"${r.matched.join(' | ')}"`;
+    const v = r[c];
+    return Number.isFinite(v) ? v.toFixed(6) : '';
+  }).join(',')));
+  const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `scanner-results-${Date.now()}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* =========================================================================
+   Init
+   ========================================================================= */
+populateMetricSelect();
+renderPresets();
+applyPreset('breakout');
+
+
+window.Scanner = { addConditionFromForm, setMatchMode, runScan, exportCSV, removeCondition, applyPreset, setSort, addToWatchlist, openScreenMatch, closeScreenMatch, setIncludeIct };
+})();
+
+</script>
 </body>
 </html>
