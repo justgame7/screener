@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Explicit network security policy for this app.
+
+  base-config with cleartextTrafficPermitted="false" blocks ALL plain-HTTP
+  traffic app-wide (WebView requests included) and requires the system trust
+  store for TLS validation. This matches the platform default for
+  targetSdkVersion 28+, but is spelled out explicitly here so the policy is
+  visible in source and doesn't silently change if targetSdkVersion is ever
+  lowered.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
