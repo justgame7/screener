@@ -85,6 +85,19 @@
 // scheduled the same way screen.js is (see .github/workflows/screener.yml),
 // just as a second, independent workflow/step.
 
+// =========================================================================
+// TIMEFRAME ON/OFF SWITCHES - flip any of these to `false` to stop that
+// timeframe from being scanned entirely (both momentum breakout AND ICT
+// displacement skip it - no API calls made for it, no section in either
+// Telegram message). This is the one place to edit for a quick on/off;
+// leave TIMEFRAMES below (resolution, historyDays, thresholds) untouched.
+// =========================================================================
+const TIMEFRAME_ENABLED = {
+  '1H': true,
+  '4H': true,
+  Daily: true,
+};
+
 const COINDCX_API_BASE = 'https://api.coindcx.com';
 const COINDCX_PUBLIC_BASE = 'https://public.coindcx.com';
 const ACTIVE_INSTRUMENTS_URL = `${COINDCX_API_BASE}/exchange/v1/derivatives/futures/data/active_instruments`;
@@ -299,13 +312,20 @@ function findDisplacement(candles, atrVal, mult = DISPLACEMENT_MULT) {
 
 // passed = latest candle's body >= 1.8x ATR(14) AND that candle closed green
 // (mode:'all' on a single condition, same shape as computeMomentumSignal).
-function computeDisplacementSignal(symbol, candles) {
-  const needed = ATR_LENGTH + 1;
+// change24h is reported alongside for context (not part of the pass/fail
+// condition itself) - same computed-proxy caveat as momentum's change24h:
+// see the "24H CHANGE" note at the top of this file.
+function computeDisplacementSignal(symbol, candles, tf) {
+  const needed = Math.max(ATR_LENGTH + 1, tf.lookbackBars + 1);
   if (candles.length < needed) throw new Error(`insufficient bar history (${candles.length}/${needed} bars)`);
 
   const last = candles[candles.length - 1];
   const price = last.close;
   if (!Number.isFinite(price)) throw new Error('current price unavailable');
+
+  const prevBar = candles[candles.length - 1 - tf.lookbackBars];
+  if (!prevBar || !(prevBar.close > 0)) throw new Error('no reference candle for 24h change');
+  const change24h = ((price - prevBar.close) / prevBar.close) * 100;
 
   const atrVal = atr(candles, ATR_LENGTH);
   const disp = findDisplacement(candles, atrVal, DISPLACEMENT_MULT);
@@ -314,6 +334,7 @@ function computeDisplacementSignal(symbol, candles) {
   return {
     symbol,
     price,
+    change24h,
     atrVal,
     displacementRatio: disp.ratio,
     passed,
@@ -336,7 +357,7 @@ async function screenSymbol(symbol, tf) {
     result.momentumError = e.message;
   }
   try {
-    result.displacement = computeDisplacementSignal(symbol, candles);
+    result.displacement = computeDisplacementSignal(symbol, candles, tf);
   } catch (e) {
     result.displacementError = e.message;
   }
@@ -469,11 +490,12 @@ function fmtRow(r) {
   const chgText = (r.change24h >= 0 ? '+' : '') + fmt(r.change24h, 2) + '%';
   return `<b>$${coin}</b> · ${chgText} · ₮ <code>${fmt(r.price)}</code>`;
 }
-// "coinname . displacement ratio . ltp" - e.g. "$PEPE · 2.34× ATR · ₮0.0000123"
+// "coinname . displacement ratio . 24h change . ltp" - e.g. "$ORCA · 1.99× · +10.67% · ₮1.8460"
 function fmtDispRow(r) {
   const coin = stripSizePrefix(stripUsdt(r.symbol));
-  const ratioText = fmt(r.displacementRatio, 2) + '× ATR';
-  return `<b>$${coin}</b> · ${ratioText} · ₮ <code>${fmt(r.price)}</code>`;
+  const ratioText = fmt(r.displacementRatio, 2) + '×';
+  const chgText = (r.change24h >= 0 ? '+' : '') + fmt(r.change24h, 2) + '%';
+  return `<b>$${coin}</b> · ${ratioText} · ${chgText} · ₮ <code>${fmt(r.price)}</code>`;
 }
 function fmtSection(rows, formatter = fmtRow) {
   return rows.length ? rows.map(formatter).join('\n') : 'none';
@@ -537,11 +559,19 @@ async function sendTelegramMessage(text, token, chatId, label = 'Telegram') {
 
 // ---------------- main ----------------
 async function main() {
+  const activeTimeframes = TIMEFRAMES.filter((tf) => TIMEFRAME_ENABLED[tf.label]);
+  const skipped = TIMEFRAMES.filter((tf) => !TIMEFRAME_ENABLED[tf.label]).map((tf) => tf.label);
+  if (skipped.length) console.log(`Timeframe(s) disabled via TIMEFRAME_ENABLED, skipping: ${skipped.join(', ')}`);
+  if (!activeTimeframes.length) {
+    console.log('All timeframes disabled via TIMEFRAME_ENABLED - nothing to scan, exiting without fetching or sending anything.');
+    return;
+  }
+
   console.log(`Fetching USDT perpetual symbol list (CoinDCX)...`);
   const symbols = await getUSDTPerpetualSymbols();
 
   const scans = [];
-  for (const tf of TIMEFRAMES) {
+  for (const tf of activeTimeframes) {
     const { momentumHits, dispHits } = await runTimeframeScan(symbols, tf);
     scans.push({ tf, momentumHits, dispHits });
   }
