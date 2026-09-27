@@ -1,0 +1,44 @@
+name: Momentum & ICT Displacement Screener
+
+on:
+  schedule:
+    # Every 15 minutes. Adjust to taste - the script re-scans all three
+    # timeframes (1H/4H/Daily) from scratch on every run regardless of
+    # cadence, so this just controls how quickly a new breakout gets caught.
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {} # lets you trigger a run manually from the Actions tab
+
+concurrency:
+  group: screener
+  # false (the default - shown explicitly here) means: if a run is still
+  # going when the next tick fires, the new trigger waits/queues rather than
+  # running alongside it - it does NOT cancel the in-progress run. If several
+  # ticks queue up while one run is still going, only the most recently
+  # queued one is kept (earlier queued ones are dropped), so the backlog
+  # never grows past one pending run.
+  # Setting this to true would instead CANCEL the in-progress (older) run
+  # and let the new trigger start immediately - the reverse of "drop the new
+  # one" - so it's left false here to match letting an in-progress scan finish.
+  cancel-in-progress: false
+
+jobs:
+  screen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run momentum + ICT displacement screener
+        env:
+          # Momentum breakout alerts - existing bot/chat, unchanged.
+          MOMENTUM_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN_1 }}
+          MOMENTUM_TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # ICT bullish displacement alerts - new, separate bot/chat.
+          DISPLACEMENT_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN_2 }}
+          DISPLACEMENT_TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: node screen.js
