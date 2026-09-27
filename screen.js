@@ -409,6 +409,14 @@ async function runTimeframeScan(symbols, tf) {
     `${momentumHits.length} passed the $${tf.minVolume.toLocaleString()} volume gate.`
   );
   logErrorBuckets(tf.label, 'Momentum', [...fetchErrored, ...momentumErrored]);
+  if (momentumMatched.length === 0 && momentumScanned.length) {
+    const top = [...momentumScanned]
+      .sort((a, b) => b.momentum.change24h - a.momentum.change24h)
+      .slice(0, 3)
+      .map((r) => `${stripUsdt(r.symbol)} ${fmt(r.momentum.change24h, 2)}% (vol×${r.momentum.volRatio !== null ? fmt(r.momentum.volRatio, 2) : '—'})`)
+      .join(', ');
+    console.log(`[${tf.label}] Momentum: no matches - closest by 24h change: ${top}`);
+  }
 
   // ---- ICT bullish displacement ----
   const dispScanned = scanned.filter((r) => r.displacement);
@@ -430,6 +438,14 @@ async function runTimeframeScan(symbols, tf) {
     `${dispHits.length} passed the $${tf.minVolume.toLocaleString()} volume gate.`
   );
   logErrorBuckets(tf.label, 'Displacement', [...fetchErrored, ...dispErrored]);
+  if (dispMatched.length === 0 && dispScanned.length) {
+    const top = [...dispScanned]
+      .sort((a, b) => (b.displacement.displacementRatio ?? -Infinity) - (a.displacement.displacementRatio ?? -Infinity))
+      .slice(0, 3)
+      .map((r) => `${stripUsdt(r.symbol)} ${r.displacement.displacementRatio !== null ? fmt(r.displacement.displacementRatio, 2) : '—'}× ATR`)
+      .join(', ');
+    console.log(`[${tf.label}] Displacement: no matches - closest by ATR ratio: ${top}`);
+  }
 
   return { momentumHits, dispHits };
 }
