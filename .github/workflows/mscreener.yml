@@ -1,0 +1,32 @@
+name: Momentum Breakout Screener
+
+# Runs mscreen.js on a schedule. GitHub Actions cron is UTC-only and
+# best-effort (can slip a few minutes under load), same caveat that applies
+# to screener.yml's hourly Ichimoku run.
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {} # lets you trigger a run manually from the Actions tab, for testing
+
+concurrency:
+  group: momentum-screener
+  cancel-in-progress: true # if a run is still going when the next 15-min tick fires, drop the new one rather than queue/overlap
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10 # safety net - a hung fetch/retry loop shouldn't run indefinitely and eat Action minutes
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # native global fetch - no extra dependencies needed
+
+      - name: Run momentum breakout screener
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN_1 }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID_1 }}
+        run: node mscreen.js
