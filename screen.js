@@ -93,7 +93,7 @@
 // leave TIMEFRAMES below (resolution, historyDays, thresholds) untouched.
 // =========================================================================
 const TIMEFRAME_ENABLED = {
-  '1H': false,
+  '1H': true,
   '4H': true,
   Daily: true,
 };
