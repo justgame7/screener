@@ -1,9 +1,9 @@
 // momentum-screen.js
 //
 // Standalone screener, for running headless (no browser/DOM) on a schedule
-// via GitHub Actions. Runs TWO independent presets, ported exactly from
-// screener.html's Custom Screens tab, on the same fetched candles for each
-// of the three timeframes below:
+// via GitHub Actions. Runs THREE independent screens (four checks), ported
+// exactly from screener.html's Custom Screens tab, on the same fetched
+// candles for each of the three timeframes below:
 //
 // 1) "Momentum breakout" (Trend):
 //   { id:'breakout', cat:'Trend', title:'Momentum breakout',
@@ -34,12 +34,33 @@
 //   ported here, since the ask was bullish-only, same one-directional stance
 //   as the momentum preset above.
 //
-// These two screens are INDEPENDENT of each other and of timeframe - a coin
+// 3) "Near 50% / 61.8% retracement" (Trend), percentage variants:
+//   { id:'midpointRetrPct', conds:[{metric:'midpointPctDist',operator:'<',value:1}] }
+//   { id:'fib618RetrPct',   conds:[{metric:'fib618PctDist',  operator:'<',value:1}] }
+//
+//   i.e. a coin is flagged when price sits within RETRACEMENT_DIST_PCT (1%)
+//   of the 50% midpoint and/or the 61.8% level of the LATEST SWING LEG.
+//   Verbatim port of screener.html's findSwingPoints(candles, 3) /
+//   findMidpointRetracement() / findFib618Retracement():
+//     - latest swing leg = most recent swing high <-> most recent swing low
+//     - up-leg  (low came first)  -> direction 'bullish'
+//       down-leg (high came first) -> direction 'bearish'
+//     - 50%   level = (swingHigh + swingLow) / 2
+//     - 61.8% level = high - 0.618*range (up-leg) / low + 0.618*range (down-leg)
+//     - distance    = |price - level| / price * 100
+//   The preset itself is direction-agnostic; RETRACEMENT_DIRECTION_ENABLED
+//   below is this script's own switch to keep only up-legs, only down-legs,
+//   or both. A coin matching both levels is shown once, tagged "50% + 61.8%",
+//   in a single retracement alert.
+//
+// These screens are INDEPENDENT of each other and of timeframe - a coin
 // passing on 1H has no bearing on whether it passes on 4H/Daily, and passing
-// momentum has no bearing on passing displacement. Each timeframe's candles
-// are fetched once and both presets are evaluated against that same data,
-// then results are split into two separate Telegram messages sent to two
-// separate bots (see TELEGRAM env vars near sendTelegramMessage below).
+// momentum has no bearing on passing displacement or retracement. Each
+// timeframe's candles are fetched once and all checks are evaluated against
+// that same data. Nothing is sent until every enabled timeframe has been
+// scanned; results are then split into three separate Telegram messages sent
+// to three separate bots (see TELEGRAM env vars near sendTelegramMessage
+// below).
 //
 // DATA SOURCE: CoinDCX public API only - same two endpoints and same
 // reasoning as screen.js (see that file's own header comment for the full
@@ -79,6 +100,7 @@
 // Run locally to test:
 //   MOMENTUM_TELEGRAM_BOT_TOKEN=xxx MOMENTUM_TELEGRAM_CHAT_ID=xxx \
 //   DISPLACEMENT_TELEGRAM_BOT_TOKEN=yyy DISPLACEMENT_TELEGRAM_CHAT_ID=yyy \
+//   RETRACEMENT_TELEGRAM_BOT_TOKEN=zzz RETRACEMENT_TELEGRAM_CHAT_ID=zzz \
 //   node screen.js
 //
 // See README.md for the one-time Telegram bot setup; this is intended to be
@@ -88,8 +110,8 @@
 // =========================================================================
 // TIMEFRAME ON/OFF SWITCHES - flip any of these to `false` to stop that
 // timeframe from being scanned entirely (both momentum breakout AND ICT
-// displacement skip it - no API calls made for it, no section in either
-// Telegram message). This is the one place to edit for a quick on/off;
+// displacement/retracement skip it - no API calls made for it, no section in
+// any Telegram message). This is the one place to edit for a quick on/off;
 // leave TIMEFRAMES below (resolution, historyDays, thresholds) untouched.
 // =========================================================================
 const TIMEFRAME_ENABLED = {
@@ -97,6 +119,23 @@ const TIMEFRAME_ENABLED = {
   '4H': true,
   Daily: true,
 };
+
+// =========================================================================
+// RETRACEMENT DIRECTION SWITCHES - which swing-leg direction(s) the 50% /
+// 61.8% retracement screen reports. Same idea as TIMEFRAME_ENABLED above.
+//   bull: true  -> latest leg is an UP-leg (swing low, then swing high):
+//                  price is pulling back down into the level. Shown as ▲.
+//   bear: true  -> latest leg is a DOWN-leg (swing high, then swing low):
+//                  price is bouncing up into the level. Shown as ▼.
+// Both true  = both directions (default, matches screener.html).
+// Both false = retracement screen is skipped entirely (no retracement
+//              message is sent); momentum/displacement are unaffected.
+// =========================================================================
+const RETRACEMENT_DIRECTION_ENABLED = {
+  bull: true,
+  bear: true,
+};
+const RETRACEMENT_ACTIVE = RETRACEMENT_DIRECTION_ENABLED.bull || RETRACEMENT_DIRECTION_ENABLED.bear;
 
 const COINDCX_API_BASE = 'https://api.coindcx.com';
 const COINDCX_PUBLIC_BASE = 'https://public.coindcx.com';
@@ -112,6 +151,12 @@ const VOLRATIO_WINDOW = 20;       // volumeRatio()'s trailing-average window in 
 // default (findDisplacement(candles, atrVal, 1.8) in screener.html).
 const ATR_LENGTH = 14;            // atr(candles, length=14)
 const DISPLACEMENT_MULT = 1.8;    // body >= 1.8x ATR to flag as displacement
+
+// Preset thresholds - verbatim from screener.html's 'midpointRetrPct' and
+// 'fib618RetrPct' presets (midpointPctDist < 1, fib618PctDist < 1) and
+// findSwingPoints(candles, 3).
+const RETRACEMENT_DIST_PCT = 1;   // price within 1% of the level
+const SWING_SPAN = 3;             // bars on each side for a swing high/low
 
 // Three timeframes, each needing:
 //   - enough bars for a 20-bar trailing volume average (VOLRATIO_WINDOW + 1)
@@ -342,10 +387,86 @@ function computeDisplacementSignal(symbol, candles, tf) {
   };
 }
 
-// Fetches candles ONCE per symbol/timeframe and evaluates both presets
-// against that same data. The two are scored independently (own try/catch)
-// so an edge case that trips one preset's bar-count guard doesn't also
-// discard the other preset's result for that symbol.
+// ---------------- 50% / 61.8% retracement core ----------------
+// Verbatim port of screener.html's findSwingPoints(candles, span): wick-based
+// swing highs/lows, a pivot needing `span` lower highs / higher lows on both
+// sides (so the last `span` candles can never be confirmed swings yet).
+function findSwingPoints(candles, span = SWING_SPAN) {
+  const highs = candles.map((c) => c.high);
+  const lows = candles.map((c) => c.low);
+  const swingHighs = [], swingLows = [];
+  for (let i = span; i < candles.length - span; i++) {
+    let isHigh = true, isLow = true;
+    for (let j = i - span; j <= i + span; j++) {
+      if (j === i) continue;
+      if (highs[j] >= highs[i]) isHigh = false;
+      if (lows[j] <= lows[i]) isLow = false;
+    }
+    if (isHigh) swingHighs.push({ idx: i, price: highs[i] });
+    if (isLow) swingLows.push({ idx: i, price: lows[i] });
+  }
+  return { swingHighs, swingLows };
+}
+
+// Port of findMidpointRetracement() + findFib618Retracement() (percentage
+// distances only), computed off the same latest swing leg. As in
+// screener.html: the 50% level needs no positive range, the 61.8% level does.
+// No confirmed swing pair yet -> no signal (not an error), same as the
+// browser, where a null distance simply fails the condition.
+function computeRetracementSignal(symbol, candles, tf) {
+  const needed = SWING_SPAN * 2 + 1;
+  if (candles.length < needed) {
+    throw new Error(`insufficient bar history (${candles.length}/${needed} bars)`);
+  }
+
+  const last = candles[candles.length - 1];
+  const price = last.close;
+  if (!Number.isFinite(price) || !(price > 0)) throw new Error('current price unavailable');
+
+  const result = {
+    symbol,
+    price,
+    direction: null,      // 'bullish' (up-leg) | 'bearish' (down-leg)
+    mid: null,
+    level618: null,
+    midDistPct: null,
+    fib618DistPct: null,
+    pass50: false,
+    pass618: false,
+    passed: false,
+    volToday: price * last.volume, // USDT notional of the latest candle - used for the minVolume gate
+  };
+
+  const { swingHighs, swingLows } = findSwingPoints(candles, SWING_SPAN);
+  if (!swingHighs.length || !swingLows.length) return result;
+
+  const lastHigh = swingHighs[swingHighs.length - 1];
+  const lastLow = swingLows[swingLows.length - 1];
+  if (lastHigh.idx === lastLow.idx) return result;
+
+  result.direction = lastLow.idx < lastHigh.idx ? 'bullish' : 'bearish';
+
+  result.mid = (lastHigh.price + lastLow.price) / 2;
+  result.midDistPct = Math.abs(price - result.mid) / price * 100;
+
+  const range = lastHigh.price - lastLow.price;
+  if (range > 0) {
+    result.level618 = result.direction === 'bullish'
+      ? lastHigh.price - 0.618 * range
+      : lastLow.price + 0.618 * range;
+    result.fib618DistPct = Math.abs(price - result.level618) / price * 100;
+  }
+
+  result.pass50 = result.midDistPct < RETRACEMENT_DIST_PCT;
+  result.pass618 = result.fib618DistPct !== null && result.fib618DistPct < RETRACEMENT_DIST_PCT;
+  result.passed = result.pass50 || result.pass618;
+  return result;
+}
+
+// Fetches candles ONCE per symbol/timeframe and evaluates all presets
+// against that same data. The presets are scored independently (own
+// try/catch) so an edge case that trips one preset's bar-count guard doesn't
+// also discard the other presets' results for that symbol.
 async function screenSymbol(symbol, tf) {
   const candles = await getKlines(symbol, tf.resolution, tf.historyDays);
   if (candles.length === 0) throw new Error(`no candle data returned (requested ${tf.historyDays}d window)`);
@@ -360,6 +481,13 @@ async function screenSymbol(symbol, tf) {
     result.displacement = computeDisplacementSignal(symbol, candles, tf);
   } catch (e) {
     result.displacementError = e.message;
+  }
+  if (RETRACEMENT_ACTIVE) {
+    try {
+      result.retracement = computeRetracementSignal(symbol, candles, tf);
+    } catch (e) {
+      result.retracementError = e.message;
+    }
   }
   return result;
 }
@@ -407,7 +535,7 @@ function logErrorBuckets(tfLabel, presetLabel, errored) {
 }
 
 async function runTimeframeScan(symbols, tf) {
-  console.log(`\nScanning ${symbols.length} symbols on ${tf.label} (resolution=${tf.resolution}) for momentum breakout + bullish displacement...`);
+  console.log(`\nScanning ${symbols.length} symbols on ${tf.label} (resolution=${tf.resolution}) for momentum breakout + bullish displacement${RETRACEMENT_ACTIVE ? ' + 50%/61.8% retracement' : ''}...`);
 
   const raw = await runPool(symbols, (s) => screenSymbol(s, tf), CONCURRENCY);
   // Whole-symbol failures (candle fetch itself failed) - shared by both presets.
@@ -468,7 +596,50 @@ async function runTimeframeScan(symbols, tf) {
     console.log(`[${tf.label}] Displacement: no matches - closest by ATR ratio: ${top}`);
   }
 
-  return { momentumHits, dispHits };
+  // ---- 50% / 61.8% retracement ----
+  let retracementHits = [];
+  if (RETRACEMENT_ACTIVE) {
+    const dirAllowed = (r) =>
+      (r.retracement.direction === 'bullish' && RETRACEMENT_DIRECTION_ENABLED.bull) ||
+      (r.retracement.direction === 'bearish' && RETRACEMENT_DIRECTION_ENABLED.bear);
+    const closestPct = (x) => Math.min(
+      x.pass50 ? x.midDistPct : Infinity,
+      x.pass618 ? x.fib618DistPct : Infinity
+    );
+
+    const retrScanned = scanned.filter((r) => r.retracement);
+    const retrErrored = scanned.filter((r) => r.retracementError).map((r) => ({ symbol: r.symbol, error: r.retracementError }));
+    const retrMatched = retrScanned.filter((r) => r.retracement.passed && dirAllowed(r));
+    // Volume gate applies strictly: latest candle's USDT notional must exceed tf.minVolume.
+    retracementHits = retrMatched
+      .filter((r) => r.retracement.volToday > tf.minVolume)
+      .map((r) => r.retracement)
+      .sort((a, b) => closestPct(a) - closestPct(b)); // closest to a level first
+
+    const dirLabel = [RETRACEMENT_DIRECTION_ENABLED.bull && 'bull', RETRACEMENT_DIRECTION_ENABLED.bear && 'bear'].filter(Boolean).join('+');
+    console.log(
+      `[${tf.label}] Retracement: ${symbols.length} symbols -> ${retrScanned.length} scanned ok, ` +
+      `${fetchErrored.length + retrErrored.length} errored, ` +
+      `${retrMatched.length} within ${RETRACEMENT_DIST_PCT}% of 50%/61.8% (${dirLabel} legs), ` +
+      `${retracementHits.length} passed the $${tf.minVolume.toLocaleString()} volume gate.`
+    );
+    logErrorBuckets(tf.label, 'Retracement', [...fetchErrored, ...retrErrored]);
+    if (retrMatched.length === 0 && retrScanned.length) {
+      const nearest = (r) => Math.min(
+        r.retracement.midDistPct ?? Infinity,
+        r.retracement.fib618DistPct ?? Infinity
+      );
+      const top = retrScanned
+        .filter((r) => r.retracement.direction && dirAllowed(r) && Number.isFinite(nearest(r)))
+        .sort((a, b) => nearest(a) - nearest(b))
+        .slice(0, 3)
+        .map((r) => `${stripUsdt(r.symbol)} ${fmt(nearest(r), 2)}%`)
+        .join(', ');
+      console.log(`[${tf.label}] Retracement: no matches - closest to a level: ${top || '—'}`);
+    }
+  }
+
+  return { momentumHits, dispHits, retracementHits };
 }
 
 // ---------------- formatting ----------------
@@ -496,6 +667,16 @@ function fmtDispRow(r) {
   const ratioText = fmt(r.displacementRatio, 2) + '×';
   const chgText = (r.change24h >= 0 ? '+' : '') + fmt(r.change24h, 2) + '%';
   return `<b>$${coin}</b> · ${ratioText} · ${chgText} · ₮ <code>${fmt(r.price)}</code>`;
+}
+// "coinname . leg dir . level tag(s) w/ distance . ltp"
+// e.g. "$ORCA ▲ · 50% (0.42%) + 61.8% (0.95%) · ₮1.8460"  (▲ up-leg, ▼ down-leg)
+function fmtRetraceRow(r) {
+  const coin = stripSizePrefix(stripUsdt(r.symbol));
+  const arrow = r.direction === 'bullish' ? '▲' : '▼';
+  const tags = [];
+  if (r.pass50) tags.push(`50% (${fmt(r.midDistPct, 2)}%)`);
+  if (r.pass618) tags.push(`61.8% (${fmt(r.fib618DistPct, 2)}%)`);
+  return `<b>$${coin}</b> ${arrow} · ${tags.join(' + ')} · ₮ <code>${fmt(r.price)}</code>`;
 }
 function fmtSection(rows, formatter = fmtRow) {
   return rows.length ? rows.map(formatter).join('\n') : 'none';
@@ -570,10 +751,14 @@ async function main() {
   console.log(`Fetching USDT perpetual symbol list (CoinDCX)...`);
   const symbols = await getUSDTPerpetualSymbols();
 
+  if (!RETRACEMENT_ACTIVE) {
+    console.log('Both retracement directions disabled via RETRACEMENT_DIRECTION_ENABLED - retracement screen skipped.');
+  }
+
   const scans = [];
   for (const tf of activeTimeframes) {
-    const { momentumHits, dispHits } = await runTimeframeScan(symbols, tf);
-    scans.push({ tf, momentumHits, dispHits });
+    const { momentumHits, dispHits, retracementHits } = await runTimeframeScan(symbols, tf);
+    scans.push({ tf, momentumHits, dispHits, retracementHits });
   }
 
   const stamp = formatIST(new Date());
@@ -591,26 +776,43 @@ async function main() {
     scans.map((s) => sectionFor(s.tf.label, s.dispHits, fmtDispRow, 'Displacements')).join('\n\n') + '\n\n' +
     `Body ≥ ${DISPLACEMENT_MULT}× ATR(${ATR_LENGTH}), bullish candle`;
 
+  const retracementMessage = RETRACEMENT_ACTIVE
+    ? `<b>50% / 61.8% retracement screener (CoinDCX) — ${stamp}</b>\n\n` +
+      scans.map((s) => sectionFor(s.tf.label, s.retracementHits, fmtRetraceRow, 'Retracements')).join('\n\n') + '\n\n' +
+      `Within ${RETRACEMENT_DIST_PCT}% of the 50% / 61.8% level of the latest swing leg · ▲ up-leg · ▼ down-leg · ` +
+      `legs: ${[RETRACEMENT_DIRECTION_ENABLED.bull && 'bull', RETRACEMENT_DIRECTION_ENABLED.bear && 'bear'].filter(Boolean).join(' + ')}`
+    : null;
+
   console.log('\n' + momentumMessage.replace(/<\/?[a-z]+>/g, ''));
   console.log('\n' + displacementMessage.replace(/<\/?[a-z]+>/g, ''));
+  if (retracementMessage) console.log('\n' + retracementMessage.replace(/<\/?[a-z]+>/g, ''));
 
-  // Two separate bots, per preset - matching MOMENTUM_/DISPLACEMENT_ prefixed
-  // env var names on both sides (see .github/workflows/screener.yml).
-  await sendTelegramMessage(
-    momentumMessage,
-    process.env.MOMENTUM_TELEGRAM_BOT_TOKEN,
-    process.env.MOMENTUM_TELEGRAM_CHAT_ID,
-    'Momentum'
-  );
-  await sendTelegramMessage(
-    displacementMessage,
-    process.env.DISPLACEMENT_TELEGRAM_BOT_TOKEN,
-    process.env.DISPLACEMENT_TELEGRAM_CHAT_ID,
-    'Displacement'
-  );
+  // Three separate bots, per screen - matching MOMENTUM_/DISPLACEMENT_/
+  // RETRACEMENT_ prefixed env var names on both sides (see
+  // .github/workflows/screener.yml). Each send is isolated so one bot
+  // failing doesn't stop the others; the run still exits non-zero at the end
+  // if any send failed.
+  const sends = [
+    { label: 'Momentum', text: momentumMessage, token: process.env.MOMENTUM_TELEGRAM_BOT_TOKEN, chatId: process.env.MOMENTUM_TELEGRAM_CHAT_ID },
+    { label: 'Displacement', text: displacementMessage, token: process.env.DISPLACEMENT_TELEGRAM_BOT_TOKEN, chatId: process.env.DISPLACEMENT_TELEGRAM_CHAT_ID },
+  ];
+  if (retracementMessage) {
+    sends.push({ label: 'Retracement', text: retracementMessage, token: process.env.RETRACEMENT_TELEGRAM_BOT_TOKEN, chatId: process.env.RETRACEMENT_TELEGRAM_CHAT_ID });
+  }
+
+  const failures = [];
+  for (const { label, text, token, chatId } of sends) {
+    try {
+      await sendTelegramMessage(text, token, chatId, label);
+    } catch (e) {
+      console.error(`${label} send failed:`, e.message);
+      failures.push(label);
+    }
+  }
+  if (failures.length) throw new Error(`Telegram send failed for: ${failures.join(', ')}`);
 }
 
 main().catch((err) => {
-  console.error('Momentum breakout screener run failed:', err);
+  console.error('Screener run failed:', err);
   process.exit(1);
 });
