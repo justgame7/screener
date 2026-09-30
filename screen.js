@@ -27,7 +27,7 @@ const TIMEFRAME_SWITCHES = {
   '1H':     { momentumDisplacement: true, retracement: false },
   '4H':     { momentumDisplacement: true, retracement: true },
   Daily:    { momentumDisplacement: true, retracement: true },
-  Weekly:   {                             retracement: false }, // retracement-only
+  Weekly:   {                             retracement: true }, // retracement-only
 };
 
 // =========================================================================
@@ -734,6 +734,33 @@ function fmtSection(rows, formatter = fmtRow) {
   return rows.length ? rows.map(formatter).join('\n') : 'none';
 }
 
+// Retracement alerts are grouped instead of one flat list. Order:
+//   ▲ Bull: 50% only -> 61.8% only -> both 50% & 61.8%
+//   ▼ Bear: 50% only -> 61.8% only -> both 50% & 61.8%
+// Empty groups are omitted. Inside each group the rows keep the
+// closest-to-a-level-first order that runTimeframeScan already applied.
+const RETRACE_DIRECTION_ORDER = [
+  { key: 'bullish', arrow: '▲', name: 'Bull' },
+  { key: 'bearish', arrow: '▼', name: 'Bear' },
+];
+const RETRACE_LEVEL_ORDER = [
+  { key: '50', label: '50%', match: (r) => r.pass50 && !r.pass618 },
+  { key: '618', label: '61.8%', match: (r) => r.pass618 && !r.pass50 },
+  { key: 'both', label: '50% & 61.8%', match: (r) => r.pass50 && r.pass618 },
+];
+
+function fmtRetraceGroups(hits) {
+  const blocks = [];
+  for (const dir of RETRACE_DIRECTION_ORDER) {
+    for (const lvl of RETRACE_LEVEL_ORDER) {
+      const rows = hits.filter((r) => r.direction === dir.key && lvl.match(r));
+      if (!rows.length) continue;
+      blocks.push(`<b>${dir.arrow} ${dir.name} · ${lvl.label} (${rows.length})</b>\n${rows.map(fmtRetraceRow).join('\n')}`);
+    }
+  }
+  return blocks.join('\n\n');
+}
+
 function formatIST(date) {
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Kolkata',
@@ -840,7 +867,9 @@ async function main() {
 
   const retracementMessage = retrScans.length
     ? `<b>50% / 61.8% retracement screener (CoinDCX) — ${stamp}</b>\n\n` +
-      retrScans.map((s) => sectionFor(s.tf.label, s.retracementHits, fmtRetraceRow, 'Retracements')).join('\n\n') + '\n\n' +
+      retrScans.map((s) => `<b>— ${s.tf.label} —</b>\n` + (s.retracementHits.length
+        ? `<b>Retracements (${s.retracementHits.length})</b>\n\n${fmtRetraceGroups(s.retracementHits)}`
+        : 'none')).join('\n\n') + '\n\n' +
       `Within ${RETRACEMENT_DIST_PCT}% of the 50% / 61.8% level of the latest swing leg · ▲ up-leg · ▼ down-leg · ` +
       `legs: ${[RETRACEMENT_DIRECTION_ENABLED.bull && 'bull', RETRACEMENT_DIRECTION_ENABLED.bear && 'bear'].filter(Boolean).join(' + ')}`
     : null;
