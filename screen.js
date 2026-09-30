@@ -1,3 +1,55 @@
+// =========================================================================
+// QUICK-EDIT SWITCHES - everything you normally need to change is in the
+// two blocks below. Flip a value between true / false and save; nothing
+// else in this file needs touching for a simple on/off.
+// =========================================================================
+
+// =========================================================================
+// TIMEFRAME SWITCHES - one row per timeframe, both toggles side by side:
+//
+//   momentumDisplacement  ->  momentum breakout + ICT bullish displacement
+//   retracement           ->  50% / 61.8% retracement screen
+//
+// Flip a value to `false` to stop THAT screen from scanning THAT timeframe
+// (no section for it in that screen's Telegram message). The two columns are
+// fully independent - e.g. Daily can be off for momentum/displacement and on
+// for retracement, or the reverse. A timeframe's candles are only fetched if
+// at least one of its two switches is on, and only once. Momentum and
+// displacement share one switch, so they always cover the same timeframes.
+//
+// Weekly is retracement-only: it has no momentumDisplacement switch, and
+// those screens never run on it.
+//
+// Leave TIMEFRAMES below (resolution, historyDays, thresholds) untouched.
+// =========================================================================
+const TIMEFRAME_SWITCHES = {
+  //          momentumDisplacement   retracement
+  '1H':     { momentumDisplacement: true, retracement: false },
+  '4H':     { momentumDisplacement: true, retracement: true },
+  Daily:    { momentumDisplacement: true, retracement: true },
+  Weekly:   {                             retracement: true }, // retracement-only
+};
+
+// =========================================================================
+// RETRACEMENT DIRECTION SWITCHES - which swing-leg direction(s) the 50% /
+// 61.8% retracement screen reports. Same idea as the timeframe switches above.
+//   bull: true  -> latest leg is an UP-leg (swing low, then swing high):
+//                  price is pulling back down into the level. Shown as ▲.
+//   bear: true  -> latest leg is a DOWN-leg (swing high, then swing low):
+//                  price is bouncing up into the level. Shown as ▼.
+// Both true  = both directions (default, matches screener.html).
+// Both false = retracement screen is skipped entirely (no retracement
+//              message is sent); momentum/displacement are unaffected.
+// =========================================================================
+const RETRACEMENT_DIRECTION_ENABLED = {
+  bull: true,
+  bear: false,
+};
+
+// ---------------------------------------------------------------------------
+// End of quick-edit switches. Everything below is script internals.
+// ---------------------------------------------------------------------------
+
 // momentum-screen.js
 //
 // Standalone screener, for running headless (no browser/DOM) on a schedule
@@ -53,8 +105,8 @@
 //   below is this script's own switch to keep only up-legs, only down-legs,
 //   or both. A coin matching both levels is shown once, tagged "50% + 61.8%",
 //   in a single retracement alert. Retracement also has its own per-timeframe
-//   on/off (RETRACEMENT_TIMEFRAME_ENABLED), independent of TIMEFRAME_ENABLED,
-//   which governs momentum + displacement only.
+//   on/off (TIMEFRAME_SWITCHES[tf].retracement), independent of the
+//   momentumDisplacement switch, which governs momentum + displacement only.
 //
 // These screens are INDEPENDENT of each other and of timeframe - a coin
 // passing on 1H has no bearing on whether it passes on 4H/Daily, and passing
@@ -110,55 +162,12 @@
 // scheduled the same way screen.js is (see .github/workflows/screener.yml),
 // just as a second, independent workflow/step.
 
-// =========================================================================
-// TIMEFRAME ON/OFF SWITCHES - MOMENTUM + DISPLACEMENT ONLY. Flip any of these
-// to `false` to stop momentum breakout AND ICT displacement from scanning
-// that timeframe (no section for it in either of those two Telegram
-// messages). The retracement screen does NOT read this - it has its own,
-// independent switches (RETRACEMENT_TIMEFRAME_ENABLED, further below). A
-// timeframe's candles are only fetched if at least one screen needs it.
-// Leave TIMEFRAMES below (resolution, historyDays, thresholds) untouched.
-// =========================================================================
-const TIMEFRAME_ENABLED = {
-  '1H': true,
-  '4H': true,
-  Daily: true,
-};
-
-// =========================================================================
-// RETRACEMENT DIRECTION SWITCHES - which swing-leg direction(s) the 50% /
-// 61.8% retracement screen reports. Same idea as TIMEFRAME_ENABLED above.
-//   bull: true  -> latest leg is an UP-leg (swing low, then swing high):
-//                  price is pulling back down into the level. Shown as ▲.
-//   bear: true  -> latest leg is a DOWN-leg (swing high, then swing low):
-//                  price is bouncing up into the level. Shown as ▼.
-// Both true  = both directions (default, matches screener.html).
-// Both false = retracement screen is skipped entirely (no retracement
-//              message is sent); momentum/displacement are unaffected.
-// =========================================================================
-const RETRACEMENT_DIRECTION_ENABLED = {
-  bull: true,
-  bear: false,
-};
+// Derived from the quick-edit switches at the top of the file - not meant to be edited.
 const RETRACEMENT_ACTIVE = RETRACEMENT_DIRECTION_ENABLED.bull || RETRACEMENT_DIRECTION_ENABLED.bear;
 
-// =========================================================================
-// RETRACEMENT TIMEFRAME SWITCHES - the retracement screen's OWN per-timeframe
-// on/off, completely independent of TIMEFRAME_ENABLED above. e.g. you can
-// turn Daily off for momentum/displacement while keeping it on for
-// retracement, or the reverse. A timeframe set to `false` here gets no
-// retracement scan and no section in the retracement message.
-// =========================================================================
-const RETRACEMENT_TIMEFRAME_ENABLED = {
-  '1H': false,
-  '4H': true,
-  Daily: true,
-  Weekly: true, // retracement-only timeframe - momentum/displacement never scan Weekly
-};
-
-// Which screens run on a given timeframe (see the two switch blocks above).
-const mdEnabled = (tf) => !tf.retracementOnly && !!TIMEFRAME_ENABLED[tf.label]; // momentum + displacement (never on retracement-only timeframes)
-const retrEnabled = (tf) => RETRACEMENT_ACTIVE && !!RETRACEMENT_TIMEFRAME_ENABLED[tf.label]; // retracement
+// Which screens run on a given timeframe (see the switch blocks at the top of the file).
+const mdEnabled = (tf) => !tf.retracementOnly && !!(TIMEFRAME_SWITCHES[tf.label] || {}).momentumDisplacement; // momentum + displacement (never on retracement-only timeframes)
+const retrEnabled = (tf) => RETRACEMENT_ACTIVE && !!(TIMEFRAME_SWITCHES[tf.label] || {}).retracement; // retracement
 
 const COINDCX_API_BASE = 'https://api.coindcx.com';
 const COINDCX_PUBLIC_BASE = 'https://public.coindcx.com';
@@ -200,9 +209,9 @@ const TIMEFRAMES = [
   { label: '4H', resolution: '4h', historyDays: 40, minVolume: 1_000_000, lookbackBars: 6 },
   { label: 'Daily', resolution: '1d', historyDays: 90, minVolume: 10_000_000, lookbackBars: 1 },
   // Weekly: RETRACEMENT ONLY (retracementOnly: true) - momentum/displacement
-  // never run on it, whatever TIMEFRAME_ENABLED says, so lookbackBars below is
+  // never run on it, whatever TIMEFRAME_SWITCHES says, so lookbackBars below is
   // unused (the 24h-change proxy isn't meaningful on weekly bars). Switch it
-  // on/off via RETRACEMENT_TIMEFRAME_ENABLED.Weekly. historyDays: 730 (~104
+  // on/off via TIMEFRAME_SWITCHES.Weekly.retracement. historyDays: 730 (~104
   // weekly bars) so there are enough bars for confirmed swing points.
   // minVolume is a starting guess scaled up from Daily's - tune to taste.
   // NOTE: resolution '1w' follows the same lowercase style as '1h'/'4h'/'1d'
@@ -786,12 +795,12 @@ async function main() {
   const activeTimeframes = TIMEFRAMES.filter((tf) => mdEnabled(tf) || retrEnabled(tf));
 
   const mdSkipped = TIMEFRAMES.filter((tf) => !tf.retracementOnly && !mdEnabled(tf)).map((tf) => tf.label);
-  if (mdSkipped.length) console.log(`Momentum/displacement: timeframe(s) disabled via TIMEFRAME_ENABLED, skipping: ${mdSkipped.join(', ')}`);
+  if (mdSkipped.length) console.log(`Momentum/displacement: timeframe(s) disabled via TIMEFRAME_SWITCHES.momentumDisplacement, skipping: ${mdSkipped.join(', ')}`);
   if (!RETRACEMENT_ACTIVE) {
     console.log('Both retracement directions disabled via RETRACEMENT_DIRECTION_ENABLED - retracement screen skipped.');
   } else {
     const retrSkipped = TIMEFRAMES.filter((tf) => !retrEnabled(tf)).map((tf) => tf.label);
-    if (retrSkipped.length) console.log(`Retracement: timeframe(s) disabled via RETRACEMENT_TIMEFRAME_ENABLED, skipping: ${retrSkipped.join(', ')}`);
+    if (retrSkipped.length) console.log(`Retracement: timeframe(s) disabled via TIMEFRAME_SWITCHES.retracement, skipping: ${retrSkipped.join(', ')}`);
   }
   if (!activeTimeframes.length) {
     console.log('No timeframe is enabled for momentum/displacement or retracement - nothing to scan, exiting without fetching or sending anything.');
