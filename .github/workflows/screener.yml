@@ -1,4 +1,4 @@
-name: Momentum & ICT Displacement Screener
+name: Momentum, ICT Displacement & Retracement Screener
 
 on:
   schedule:
@@ -33,7 +33,7 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Run momentum + ICT displacement screener
+      - name: Run momentum + ICT displacement + retracement screener
         env:
           # Momentum breakout alerts - existing bot/chat, unchanged.
           MOMENTUM_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN_1 }}
@@ -41,4 +41,7 @@ jobs:
           # ICT bullish displacement alerts - new, separate bot/chat.
           DISPLACEMENT_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN_2 }}
           DISPLACEMENT_TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # 50% / 61.8% retracement alerts - new, separate bot/chat.
+          RETRACEMENT_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN_3 }}
+          RETRACEMENT_TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: node screen.js
