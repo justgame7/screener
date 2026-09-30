@@ -25,7 +25,7 @@
 const TIMEFRAME_SWITCHES = {
   //          momentumDisplacement   retracement
   '1H':     { momentumDisplacement: true, retracement: false },
-  '4H':     { momentumDisplacement: true, retracement: true },
+  '4H':     { momentumDisplacement: true, retracement: false },
   Daily:    { momentumDisplacement: true, retracement: true },
   Weekly:   {                             retracement: true }, // retracement-only
 };
