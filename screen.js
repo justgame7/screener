@@ -3,7 +3,8 @@
 // Standalone screener, for running headless (no browser/DOM) on a schedule
 // via GitHub Actions. Runs THREE independent screens (four checks), ported
 // exactly from screener.html's Custom Screens tab, on the same fetched
-// candles for each of the three timeframes below:
+// candles for each timeframe below (1H / 4H / Daily for all screens; Weekly
+// is retracement-only):
 //
 // 1) "Momentum breakout" (Trend):
 //   { id:'breakout', cat:'Trend', title:'Momentum breakout',
@@ -137,7 +138,7 @@ const TIMEFRAME_ENABLED = {
 // =========================================================================
 const RETRACEMENT_DIRECTION_ENABLED = {
   bull: true,
-  bear: true,
+  bear: false,
 };
 const RETRACEMENT_ACTIVE = RETRACEMENT_DIRECTION_ENABLED.bull || RETRACEMENT_DIRECTION_ENABLED.bear;
 
@@ -152,10 +153,11 @@ const RETRACEMENT_TIMEFRAME_ENABLED = {
   '1H': false,
   '4H': true,
   Daily: true,
+  Weekly: true, // retracement-only timeframe - momentum/displacement never scan Weekly
 };
 
 // Which screens run on a given timeframe (see the two switch blocks above).
-const mdEnabled = (tf) => !!TIMEFRAME_ENABLED[tf.label];                        // momentum + displacement
+const mdEnabled = (tf) => !tf.retracementOnly && !!TIMEFRAME_ENABLED[tf.label]; // momentum + displacement (never on retracement-only timeframes)
 const retrEnabled = (tf) => RETRACEMENT_ACTIVE && !!RETRACEMENT_TIMEFRAME_ENABLED[tf.label]; // retracement
 
 const COINDCX_API_BASE = 'https://api.coindcx.com';
@@ -197,6 +199,17 @@ const TIMEFRAMES = [
   { label: '1H', resolution: '1h', historyDays: 10, minVolume: 250_000, lookbackBars: 24 },
   { label: '4H', resolution: '4h', historyDays: 40, minVolume: 1_000_000, lookbackBars: 6 },
   { label: 'Daily', resolution: '1d', historyDays: 90, minVolume: 10_000_000, lookbackBars: 1 },
+  // Weekly: RETRACEMENT ONLY (retracementOnly: true) - momentum/displacement
+  // never run on it, whatever TIMEFRAME_ENABLED says, so lookbackBars below is
+  // unused (the 24h-change proxy isn't meaningful on weekly bars). Switch it
+  // on/off via RETRACEMENT_TIMEFRAME_ENABLED.Weekly. historyDays: 730 (~104
+  // weekly bars) so there are enough bars for confirmed swing points.
+  // minVolume is a starting guess scaled up from Daily's - tune to taste.
+  // NOTE: resolution '1w' follows the same lowercase style as '1h'/'4h'/'1d'
+  // above; CoinDCX's docs list weekly candles but this exact value hasn't been
+  // confirmed against the live endpoint. If Weekly comes back with "no candle
+  // data" / HTTP errors for every symbol, try '1W'.
+  { label: 'Weekly', resolution: '1w', historyDays: 730, minVolume: 50_000_000, lookbackBars: 1, retracementOnly: true },
 ];
 
 const CONCURRENCY = 3; // conservative starting point, same rationale as screen.js
@@ -772,7 +785,7 @@ async function sendTelegramMessage(text, token, chatId, label = 'Telegram') {
 async function main() {
   const activeTimeframes = TIMEFRAMES.filter((tf) => mdEnabled(tf) || retrEnabled(tf));
 
-  const mdSkipped = TIMEFRAMES.filter((tf) => !mdEnabled(tf)).map((tf) => tf.label);
+  const mdSkipped = TIMEFRAMES.filter((tf) => !tf.retracementOnly && !mdEnabled(tf)).map((tf) => tf.label);
   if (mdSkipped.length) console.log(`Momentum/displacement: timeframe(s) disabled via TIMEFRAME_ENABLED, skipping: ${mdSkipped.join(', ')}`);
   if (!RETRACEMENT_ACTIVE) {
     console.log('Both retracement directions disabled via RETRACEMENT_DIRECTION_ENABLED - retracement screen skipped.');
