@@ -721,13 +721,13 @@ function fmtDispRow(r) {
   return `<b>$${coin}</b> · ${ratioText} · ${chgText} · ₮ <code>${fmt(r.price)}</code>`;
 }
 // "coinname . leg dir . level tag(s) w/ distance . ltp"
-// e.g. "$ORCA ▲ · 50% (0.42%) + 61.8% (0.95%) · ₮1.8460"  (▲ up-leg, ▼ down-leg)
+// e.g. "$ORCA ▲ · 50% + 61.8% · ₮1.8460"  (▲ up-leg, ▼ down-leg)
 function fmtRetraceRow(r) {
   const coin = stripSizePrefix(stripUsdt(r.symbol));
   const arrow = r.direction === 'bullish' ? '▲' : '▼';
   const tags = [];
-  if (r.pass50) tags.push(`50% (${fmt(r.midDistPct, 2)}%)`);
-  if (r.pass618) tags.push(`61.8% (${fmt(r.fib618DistPct, 2)}%)`);
+  if (r.pass50) tags.push('50%');
+  if (r.pass618) tags.push('61.8%');
   return `<b>$${coin}</b> ${arrow} · ${tags.join(' + ')} · ₮ <code>${fmt(r.price)}</code>`;
 }
 function fmtSection(rows, formatter = fmtRow) {
