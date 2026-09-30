@@ -51,7 +51,9 @@
 //   The preset itself is direction-agnostic; RETRACEMENT_DIRECTION_ENABLED
 //   below is this script's own switch to keep only up-legs, only down-legs,
 //   or both. A coin matching both levels is shown once, tagged "50% + 61.8%",
-//   in a single retracement alert.
+//   in a single retracement alert. Retracement also has its own per-timeframe
+//   on/off (RETRACEMENT_TIMEFRAME_ENABLED), independent of TIMEFRAME_ENABLED,
+//   which governs momentum + displacement only.
 //
 // These screens are INDEPENDENT of each other and of timeframe - a coin
 // passing on 1H has no bearing on whether it passes on 4H/Daily, and passing
@@ -108,11 +110,13 @@
 // just as a second, independent workflow/step.
 
 // =========================================================================
-// TIMEFRAME ON/OFF SWITCHES - flip any of these to `false` to stop that
-// timeframe from being scanned entirely (both momentum breakout AND ICT
-// displacement/retracement skip it - no API calls made for it, no section in
-// any Telegram message). This is the one place to edit for a quick on/off;
-// leave TIMEFRAMES below (resolution, historyDays, thresholds) untouched.
+// TIMEFRAME ON/OFF SWITCHES - MOMENTUM + DISPLACEMENT ONLY. Flip any of these
+// to `false` to stop momentum breakout AND ICT displacement from scanning
+// that timeframe (no section for it in either of those two Telegram
+// messages). The retracement screen does NOT read this - it has its own,
+// independent switches (RETRACEMENT_TIMEFRAME_ENABLED, further below). A
+// timeframe's candles are only fetched if at least one screen needs it.
+// Leave TIMEFRAMES below (resolution, historyDays, thresholds) untouched.
 // =========================================================================
 const TIMEFRAME_ENABLED = {
   '1H': true,
@@ -136,6 +140,23 @@ const RETRACEMENT_DIRECTION_ENABLED = {
   bear: true,
 };
 const RETRACEMENT_ACTIVE = RETRACEMENT_DIRECTION_ENABLED.bull || RETRACEMENT_DIRECTION_ENABLED.bear;
+
+// =========================================================================
+// RETRACEMENT TIMEFRAME SWITCHES - the retracement screen's OWN per-timeframe
+// on/off, completely independent of TIMEFRAME_ENABLED above. e.g. you can
+// turn Daily off for momentum/displacement while keeping it on for
+// retracement, or the reverse. A timeframe set to `false` here gets no
+// retracement scan and no section in the retracement message.
+// =========================================================================
+const RETRACEMENT_TIMEFRAME_ENABLED = {
+  '1H': false,
+  '4H': true,
+  Daily: true,
+};
+
+// Which screens run on a given timeframe (see the two switch blocks above).
+const mdEnabled = (tf) => !!TIMEFRAME_ENABLED[tf.label];                        // momentum + displacement
+const retrEnabled = (tf) => RETRACEMENT_ACTIVE && !!RETRACEMENT_TIMEFRAME_ENABLED[tf.label]; // retracement
 
 const COINDCX_API_BASE = 'https://api.coindcx.com';
 const COINDCX_PUBLIC_BASE = 'https://public.coindcx.com';
@@ -472,17 +493,19 @@ async function screenSymbol(symbol, tf) {
   if (candles.length === 0) throw new Error(`no candle data returned (requested ${tf.historyDays}d window)`);
 
   const result = { symbol };
-  try {
-    result.momentum = computeMomentumSignal(symbol, candles, tf);
-  } catch (e) {
-    result.momentumError = e.message;
+  if (mdEnabled(tf)) {
+    try {
+      result.momentum = computeMomentumSignal(symbol, candles, tf);
+    } catch (e) {
+      result.momentumError = e.message;
+    }
+    try {
+      result.displacement = computeDisplacementSignal(symbol, candles, tf);
+    } catch (e) {
+      result.displacementError = e.message;
+    }
   }
-  try {
-    result.displacement = computeDisplacementSignal(symbol, candles, tf);
-  } catch (e) {
-    result.displacementError = e.message;
-  }
-  if (RETRACEMENT_ACTIVE) {
+  if (retrEnabled(tf)) {
     try {
       result.retracement = computeRetracementSignal(symbol, candles, tf);
     } catch (e) {
@@ -535,70 +558,77 @@ function logErrorBuckets(tfLabel, presetLabel, errored) {
 }
 
 async function runTimeframeScan(symbols, tf) {
-  console.log(`\nScanning ${symbols.length} symbols on ${tf.label} (resolution=${tf.resolution}) for momentum breakout + bullish displacement${RETRACEMENT_ACTIVE ? ' + 50%/61.8% retracement' : ''}...`);
+  const screensOn = [
+    mdEnabled(tf) && 'momentum breakout + bullish displacement',
+    retrEnabled(tf) && '50%/61.8% retracement',
+  ].filter(Boolean).join(' + ');
+  console.log(`\nScanning ${symbols.length} symbols on ${tf.label} (resolution=${tf.resolution}) for ${screensOn}...`);
 
   const raw = await runPool(symbols, (s) => screenSymbol(s, tf), CONCURRENCY);
   // Whole-symbol failures (candle fetch itself failed) - shared by both presets.
   const fetchErrored = raw.filter((r) => r && r.error);
   const scanned = raw.filter((r) => r && !r.error);
 
-  // ---- Momentum breakout ----
-  const momentumScanned = scanned.filter((r) => r.momentum);
-  const momentumErrored = scanned.filter((r) => r.momentumError).map((r) => ({ symbol: r.symbol, error: r.momentumError }));
-  const momentumMatched = momentumScanned.filter((r) => r.momentum.passed);
-  const momentumHits = momentumMatched
-    .filter((r) => r.momentum.volToday > tf.minVolume)
-    .map((r) => r.momentum)
-    .sort((a, b) => b.change24h - a.change24h); // strongest movers first
+  let momentumHits = [], dispHits = [];
+  if (mdEnabled(tf)) {
+    // ---- Momentum breakout ----
+    const momentumScanned = scanned.filter((r) => r.momentum);
+    const momentumErrored = scanned.filter((r) => r.momentumError).map((r) => ({ symbol: r.symbol, error: r.momentumError }));
+    const momentumMatched = momentumScanned.filter((r) => r.momentum.passed);
+    momentumHits = momentumMatched
+      .filter((r) => r.momentum.volToday > tf.minVolume)
+      .map((r) => r.momentum)
+      .sort((a, b) => b.change24h - a.change24h); // strongest movers first
 
-  console.log(
-    `[${tf.label}] Momentum: ${symbols.length} symbols -> ${momentumScanned.length} scanned ok, ` +
-    `${fetchErrored.length + momentumErrored.length} errored, ` +
-    `${momentumMatched.length} matched change>+${CHANGE_THRESHOLD_PCT}%/vol>${VOLRATIO_THRESHOLD}x, ` +
-    `${momentumHits.length} passed the $${tf.minVolume.toLocaleString()} volume gate.`
-  );
-  logErrorBuckets(tf.label, 'Momentum', [...fetchErrored, ...momentumErrored]);
-  if (momentumMatched.length === 0 && momentumScanned.length) {
-    const top = [...momentumScanned]
-      .sort((a, b) => b.momentum.change24h - a.momentum.change24h)
-      .slice(0, 3)
-      .map((r) => `${stripUsdt(r.symbol)} ${fmt(r.momentum.change24h, 2)}% (vol×${r.momentum.volRatio !== null ? fmt(r.momentum.volRatio, 2) : '—'})`)
-      .join(', ');
-    console.log(`[${tf.label}] Momentum: no matches - closest by 24h change: ${top}`);
-  }
+    console.log(
+      `[${tf.label}] Momentum: ${symbols.length} symbols -> ${momentumScanned.length} scanned ok, ` +
+      `${fetchErrored.length + momentumErrored.length} errored, ` +
+      `${momentumMatched.length} matched change>+${CHANGE_THRESHOLD_PCT}%/vol>${VOLRATIO_THRESHOLD}x, ` +
+      `${momentumHits.length} passed the $${tf.minVolume.toLocaleString()} volume gate.`
+    );
+    logErrorBuckets(tf.label, 'Momentum', [...fetchErrored, ...momentumErrored]);
+    if (momentumMatched.length === 0 && momentumScanned.length) {
+      const top = [...momentumScanned]
+        .sort((a, b) => b.momentum.change24h - a.momentum.change24h)
+        .slice(0, 3)
+        .map((r) => `${stripUsdt(r.symbol)} ${fmt(r.momentum.change24h, 2)}% (vol×${r.momentum.volRatio !== null ? fmt(r.momentum.volRatio, 2) : '—'})`)
+        .join(', ');
+      console.log(`[${tf.label}] Momentum: no matches - closest by 24h change: ${top}`);
+    }
 
-  // ---- ICT bullish displacement ----
-  const dispScanned = scanned.filter((r) => r.displacement);
-  const dispErrored = scanned.filter((r) => r.displacementError).map((r) => ({ symbol: r.symbol, error: r.displacementError }));
-  const dispMatched = dispScanned.filter((r) => r.displacement.passed);
-  // NOTE: screener.html's 'ictDispBull' preset itself has no volume gate -
-  // reusing tf.minVolume here is this file's own choice (same rationale as
-  // momentum's gate: filter illiquid futures out of a headless alert feed).
-  // Drop this .filter() line if you'd rather match the preset literally.
-  const dispHits = dispMatched
-    .filter((r) => r.displacement.volToday > tf.minVolume)
-    .map((r) => r.displacement)
-    .sort((a, b) => b.displacementRatio - a.displacementRatio); // biggest ATR multiples first
+    // ---- ICT bullish displacement ----
+    const dispScanned = scanned.filter((r) => r.displacement);
+    const dispErrored = scanned.filter((r) => r.displacementError).map((r) => ({ symbol: r.symbol, error: r.displacementError }));
+    const dispMatched = dispScanned.filter((r) => r.displacement.passed);
+    // NOTE: screener.html's 'ictDispBull' preset itself has no volume gate -
+    // reusing tf.minVolume here is this file's own choice (same rationale as
+    // momentum's gate: filter illiquid futures out of a headless alert feed).
+    // Drop this .filter() line if you'd rather match the preset literally.
+    dispHits = dispMatched
+      .filter((r) => r.displacement.volToday > tf.minVolume)
+      .map((r) => r.displacement)
+      .sort((a, b) => b.displacementRatio - a.displacementRatio); // biggest ATR multiples first
 
-  console.log(
-    `[${tf.label}] Displacement: ${symbols.length} symbols -> ${dispScanned.length} scanned ok, ` +
-    `${fetchErrored.length + dispErrored.length} errored, ` +
-    `${dispMatched.length} matched body>=${DISPLACEMENT_MULT}x ATR(${ATR_LENGTH}) bullish, ` +
-    `${dispHits.length} passed the $${tf.minVolume.toLocaleString()} volume gate.`
-  );
-  logErrorBuckets(tf.label, 'Displacement', [...fetchErrored, ...dispErrored]);
-  if (dispMatched.length === 0 && dispScanned.length) {
-    const top = [...dispScanned]
-      .sort((a, b) => (b.displacement.displacementRatio ?? -Infinity) - (a.displacement.displacementRatio ?? -Infinity))
-      .slice(0, 3)
-      .map((r) => `${stripUsdt(r.symbol)} ${r.displacement.displacementRatio !== null ? fmt(r.displacement.displacementRatio, 2) : '—'}× ATR`)
-      .join(', ');
-    console.log(`[${tf.label}] Displacement: no matches - closest by ATR ratio: ${top}`);
+    console.log(
+      `[${tf.label}] Displacement: ${symbols.length} symbols -> ${dispScanned.length} scanned ok, ` +
+      `${fetchErrored.length + dispErrored.length} errored, ` +
+      `${dispMatched.length} matched body>=${DISPLACEMENT_MULT}x ATR(${ATR_LENGTH}) bullish, ` +
+      `${dispHits.length} passed the $${tf.minVolume.toLocaleString()} volume gate.`
+    );
+    logErrorBuckets(tf.label, 'Displacement', [...fetchErrored, ...dispErrored]);
+    if (dispMatched.length === 0 && dispScanned.length) {
+      const top = [...dispScanned]
+        .sort((a, b) => (b.displacement.displacementRatio ?? -Infinity) - (a.displacement.displacementRatio ?? -Infinity))
+        .slice(0, 3)
+        .map((r) => `${stripUsdt(r.symbol)} ${r.displacement.displacementRatio !== null ? fmt(r.displacement.displacementRatio, 2) : '—'}× ATR`)
+        .join(', ');
+      console.log(`[${tf.label}] Displacement: no matches - closest by ATR ratio: ${top}`);
+    }
   }
 
   // ---- 50% / 61.8% retracement ----
   let retracementHits = [];
-  if (RETRACEMENT_ACTIVE) {
+  if (retrEnabled(tf)) {
     const dirAllowed = (r) =>
       (r.retracement.direction === 'bullish' && RETRACEMENT_DIRECTION_ENABLED.bull) ||
       (r.retracement.direction === 'bearish' && RETRACEMENT_DIRECTION_ENABLED.bear);
@@ -740,20 +770,23 @@ async function sendTelegramMessage(text, token, chatId, label = 'Telegram') {
 
 // ---------------- main ----------------
 async function main() {
-  const activeTimeframes = TIMEFRAMES.filter((tf) => TIMEFRAME_ENABLED[tf.label]);
-  const skipped = TIMEFRAMES.filter((tf) => !TIMEFRAME_ENABLED[tf.label]).map((tf) => tf.label);
-  if (skipped.length) console.log(`Timeframe(s) disabled via TIMEFRAME_ENABLED, skipping: ${skipped.join(', ')}`);
+  const activeTimeframes = TIMEFRAMES.filter((tf) => mdEnabled(tf) || retrEnabled(tf));
+
+  const mdSkipped = TIMEFRAMES.filter((tf) => !mdEnabled(tf)).map((tf) => tf.label);
+  if (mdSkipped.length) console.log(`Momentum/displacement: timeframe(s) disabled via TIMEFRAME_ENABLED, skipping: ${mdSkipped.join(', ')}`);
+  if (!RETRACEMENT_ACTIVE) {
+    console.log('Both retracement directions disabled via RETRACEMENT_DIRECTION_ENABLED - retracement screen skipped.');
+  } else {
+    const retrSkipped = TIMEFRAMES.filter((tf) => !retrEnabled(tf)).map((tf) => tf.label);
+    if (retrSkipped.length) console.log(`Retracement: timeframe(s) disabled via RETRACEMENT_TIMEFRAME_ENABLED, skipping: ${retrSkipped.join(', ')}`);
+  }
   if (!activeTimeframes.length) {
-    console.log('All timeframes disabled via TIMEFRAME_ENABLED - nothing to scan, exiting without fetching or sending anything.');
+    console.log('No timeframe is enabled for momentum/displacement or retracement - nothing to scan, exiting without fetching or sending anything.');
     return;
   }
 
   console.log(`Fetching USDT perpetual symbol list (CoinDCX)...`);
   const symbols = await getUSDTPerpetualSymbols();
-
-  if (!RETRACEMENT_ACTIVE) {
-    console.log('Both retracement directions disabled via RETRACEMENT_DIRECTION_ENABLED - retracement screen skipped.');
-  }
 
   const scans = [];
   for (const tf of activeTimeframes) {
@@ -766,36 +799,46 @@ async function main() {
   const sectionFor = (tfLabel, hits, formatter, matchLabel) =>
     `<b>— ${tfLabel} —</b>\n` + (hits.length ? `<b>${matchLabel} (${hits.length})</b>\n${fmtSection(hits, formatter)}` : 'none');
 
-  const momentumMessage =
-    `<b>Momentum breakout screener (CoinDCX) — ${stamp}</b>\n\n` +
-    scans.map((s) => sectionFor(s.tf.label, s.momentumHits, fmtRow, 'Breakouts')).join('\n\n') + '\n\n' +
-    `24h % > +${CHANGE_THRESHOLD_PCT} · Vol > ${VOLRATIO_THRESHOLD}× 20-bar avg`;
+  // Each message only carries the timeframes enabled for ITS screen(s), and
+  // is skipped altogether if none are (see mdEnabled / retrEnabled).
+  const mdScans = scans.filter((s) => mdEnabled(s.tf));
+  const retrScans = scans.filter((s) => retrEnabled(s.tf));
 
-  const displacementMessage =
-    `<b>ICT bullish displacement screener (CoinDCX) — ${stamp}</b>\n\n` +
-    scans.map((s) => sectionFor(s.tf.label, s.dispHits, fmtDispRow, 'Displacements')).join('\n\n') + '\n\n' +
-    `Body ≥ ${DISPLACEMENT_MULT}× ATR(${ATR_LENGTH}), bullish candle`;
+  const momentumMessage = mdScans.length
+    ? `<b>Momentum breakout screener (CoinDCX) — ${stamp}</b>\n\n` +
+      mdScans.map((s) => sectionFor(s.tf.label, s.momentumHits, fmtRow, 'Breakouts')).join('\n\n') + '\n\n' +
+      `24h % > +${CHANGE_THRESHOLD_PCT} · Vol > ${VOLRATIO_THRESHOLD}× 20-bar avg`
+    : null;
 
-  const retracementMessage = RETRACEMENT_ACTIVE
+  const displacementMessage = mdScans.length
+    ? `<b>ICT bullish displacement screener (CoinDCX) — ${stamp}</b>\n\n` +
+      mdScans.map((s) => sectionFor(s.tf.label, s.dispHits, fmtDispRow, 'Displacements')).join('\n\n') + '\n\n' +
+      `Body ≥ ${DISPLACEMENT_MULT}× ATR(${ATR_LENGTH}), bullish candle`
+    : null;
+
+  const retracementMessage = retrScans.length
     ? `<b>50% / 61.8% retracement screener (CoinDCX) — ${stamp}</b>\n\n` +
-      scans.map((s) => sectionFor(s.tf.label, s.retracementHits, fmtRetraceRow, 'Retracements')).join('\n\n') + '\n\n' +
+      retrScans.map((s) => sectionFor(s.tf.label, s.retracementHits, fmtRetraceRow, 'Retracements')).join('\n\n') + '\n\n' +
       `Within ${RETRACEMENT_DIST_PCT}% of the 50% / 61.8% level of the latest swing leg · ▲ up-leg · ▼ down-leg · ` +
       `legs: ${[RETRACEMENT_DIRECTION_ENABLED.bull && 'bull', RETRACEMENT_DIRECTION_ENABLED.bear && 'bear'].filter(Boolean).join(' + ')}`
     : null;
 
-  console.log('\n' + momentumMessage.replace(/<\/?[a-z]+>/g, ''));
-  console.log('\n' + displacementMessage.replace(/<\/?[a-z]+>/g, ''));
-  if (retracementMessage) console.log('\n' + retracementMessage.replace(/<\/?[a-z]+>/g, ''));
+  for (const m of [momentumMessage, displacementMessage, retracementMessage]) {
+    if (m) console.log('\n' + m.replace(/<\/?[a-z]+>/g, ''));
+  }
 
   // Three separate bots, per screen - matching MOMENTUM_/DISPLACEMENT_/
   // RETRACEMENT_ prefixed env var names on both sides (see
   // .github/workflows/screener.yml). Each send is isolated so one bot
   // failing doesn't stop the others; the run still exits non-zero at the end
   // if any send failed.
-  const sends = [
-    { label: 'Momentum', text: momentumMessage, token: process.env.MOMENTUM_TELEGRAM_BOT_TOKEN, chatId: process.env.MOMENTUM_TELEGRAM_CHAT_ID },
-    { label: 'Displacement', text: displacementMessage, token: process.env.DISPLACEMENT_TELEGRAM_BOT_TOKEN, chatId: process.env.DISPLACEMENT_TELEGRAM_CHAT_ID },
-  ];
+  const sends = [];
+  if (momentumMessage) {
+    sends.push({ label: 'Momentum', text: momentumMessage, token: process.env.MOMENTUM_TELEGRAM_BOT_TOKEN, chatId: process.env.MOMENTUM_TELEGRAM_CHAT_ID });
+  }
+  if (displacementMessage) {
+    sends.push({ label: 'Displacement', text: displacementMessage, token: process.env.DISPLACEMENT_TELEGRAM_BOT_TOKEN, chatId: process.env.DISPLACEMENT_TELEGRAM_CHAT_ID });
+  }
   if (retracementMessage) {
     sends.push({ label: 'Retracement', text: retracementMessage, token: process.env.RETRACEMENT_TELEGRAM_BOT_TOKEN, chatId: process.env.RETRACEMENT_TELEGRAM_CHAT_ID });
   }
