@@ -43,7 +43,7 @@ const TIMEFRAME_SWITCHES = {
 // =========================================================================
 const RETRACEMENT_DIRECTION_ENABLED = {
   bull: true,
-  bear: false,
+  bear: true,
 };
 
 // ---------------------------------------------------------------------------
