@@ -5,7 +5,7 @@ on:
     # Every 15 minutes. Adjust to taste - the script re-scans all three
     # timeframes (1H/4H/Daily) from scratch on every run regardless of
     # cadence, so this just controls how quickly a new breakout gets caught.
-    - cron: '*/15 * * * *'
+    - cron: '*/14 * * * *'
   workflow_dispatch: {} # lets you trigger a run manually from the Actions tab
 
 concurrency:
