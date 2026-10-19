@@ -291,7 +291,6 @@ function renderFund(code){
           ${kv('3Y ARR (avg)',f1(x.arr)+'%')}${kv('3Y roll. worst',f1(x.arrMin)+'%')}${kv('3Y roll. best',f1(x.arrMax)+'%')}${kv('Age',x.age+' yrs')}
           ${kv('Max drawdown','−'+f1(x.dd)+'%')}${kv('From ATH','−'+f1(x.ath)+'%')}${kv('Top 3',f1(x.top3,2)+'%')}${kv('Cash',f1(x.cash,2)+'%')}
         </div></div>
-      <div class="card"><h3>Checklist <small>against your current limits</small></h3>${checks}</div>
       <div class="card"><h3>Scheme details <small>${h?'via Groww':''}</small></h3>${h?`
         <div class="sumgrid">
           ${kv('Min. investment',inr(h.min))}${kv('Min. SIP',inr(h.sip))}${kv('AUM',h.aum!=null?inr(h.aum)+' Cr':'–')}
@@ -312,6 +311,7 @@ function renderFund(code){
         h.top.slice(0,5).map(t=>`<div class="q"><div class="qt">${esc(t[0])}</div><b class="mono">${t[1]}%</b></div>`).join('')+
         `<div class="q"><div class="qt"><b>Top 3 total</b><small>futures &amp; cash excluded</small></div><b class="mono">${h.t3}%</b></div>
          <button class="btn ghost" id="shAll" type="button" style="width:100%;margin-top:10px">Show all${h.n?` ${h.n}`:''} holdings →</button>`:'<div class="note">No holdings data.</div>'}</div>
+      <div class="card"><h3>Checklist <small>against your current limits</small></h3>${checks}</div>
     </div>
   </div>`;
   $('shClose').onclick=goBack;
