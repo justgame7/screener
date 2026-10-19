@@ -53,7 +53,7 @@ const DONCHIAN_SYSTEM_ENABLED = {
 };
 const DONCHIAN_DIRECTION_ENABLED = {
   long: true,
-  short: true,
+  short: false,
 };
 
 // =========================================================================
