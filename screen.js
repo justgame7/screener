@@ -49,7 +49,7 @@ const TIMEFRAME_SWITCHES = {
 // =========================================================================
 const DONCHIAN_SYSTEM_ENABLED = {
   '20/10': true,
-  '55/20': true,
+  '55/20': false,
 };
 const DONCHIAN_DIRECTION_ENABLED = {
   long: true,
@@ -546,9 +546,8 @@ function computeRetracementSignal(symbol, candles, tf) {
 // N bars BEFORE the latest candle (latest excluded, so it can break out):
 //   long  signal: close > highest high of prior N bars
 //   short signal: close < lowest low of prior N bars
-// exitLevel is the opposite-side M-bar channel edge (the system's trailing
-// exit / stop reference): lowest low of prior M for longs, highest high of
-// prior M for shorts. Same latest-candle convention as the other screens.
+// Only entries are reported (the exit lookback M is not used or shown).
+// Same latest-candle convention as the other screens.
 function computeDonchianSignal(symbol, candles, tf) {
   const needed = Math.max(...DONCHIAN_SYSTEMS.map((s) => s.entry)) + 1;
   if (candles.length < needed) {
@@ -562,20 +561,17 @@ function computeDonchianSignal(symbol, candles, tf) {
   const signals = [];
   for (const sys of DONCHIAN_SYSTEMS) {
     const entryWin = candles.slice(-(sys.entry + 1), -1);
-    const exitWin = candles.slice(-(sys.exit + 1), -1);
     const upper = Math.max(...entryWin.map((c) => c.high));
     const lower = Math.min(...entryWin.map((c) => c.low));
     if (DONCHIAN_DIRECTION_ENABLED.long && price > upper) {
       signals.push({
         system: sys.key, side: 'long', level: upper,
-        exitLevel: Math.min(...exitWin.map((c) => c.low)),
         breakPct: (price - upper) / upper * 100,
       });
     }
     if (DONCHIAN_DIRECTION_ENABLED.short && price < lower) {
       signals.push({
         system: sys.key, side: 'short', level: lower,
-        exitLevel: Math.max(...exitWin.map((c) => c.high)),
         breakPct: (lower - price) / lower * 100,
       });
     }
@@ -843,10 +839,10 @@ function fmtRetraceRow(r) {
   if (r.pass618) tags.push('61.8%');
   return `<b>$${coin}</b> ${arrow} · ${tags.join(' + ')} · ₮ <code>${fmt(r.price)}</code>`;
 }
-// "coinname . % beyond channel . ltp . exit level" - e.g. "$ORCA · +2.31% · ₮1.8460 · exit ₮1.7100"
+// "coinname . % beyond channel . ltp" - e.g. "$ORCA · +2.31% · ₮1.8460"
 function fmtDonchianRow(r) {
   const coin = stripSizePrefix(stripUsdt(r.symbol));
-  return `<b>$${coin}</b> · ${r.side === 'long' ? '+' : '-'}${fmt(r.breakPct, 2)}% · ₮ <code>${fmt(r.price)}</code> · exit ₮ <code>${fmt(r.exitLevel)}</code>`;
+  return `<b>$${coin}</b> · ${r.side === 'long' ? '+' : '-'}${fmt(r.breakPct, 2)}% · ₮ <code>${fmt(r.price)}</code>`;
 }
 // Grouped: per system (20/10, then 55/20), Long then Short; empty groups omitted.
 function fmtDonchianGroups(hits) {
@@ -1002,7 +998,7 @@ async function main() {
       dcScans.map((s) => `<b>— ${s.tf.label} —</b>\n` + (s.donchianHits.length
         ? `<b>Breakouts (${s.donchianHits.length})</b>\n\n${fmtDonchianGroups(s.donchianHits)}`
         : 'none')).join('\n\n') + '\n\n' +
-      `Close beyond the prior entry-bar high/low (entry/exit bars per system) · % = distance past the channel · exit = opposite exit-channel edge · ` +
+      `Close beyond the prior entry-bar high/low (20 or 55 bars) · % = distance past the channel · ` +
       `sides: ${[DONCHIAN_DIRECTION_ENABLED.long && 'long', DONCHIAN_DIRECTION_ENABLED.short && 'short'].filter(Boolean).join(' + ')}`
     : null;
 
