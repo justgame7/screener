@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "MF Screener",
+  "short_name": "MF Screener",
+  "description": "Screen Indian Direct-Growth mutual funds with a six-point checklist: drawdown, 1Y return, ATH distance, 3Y rolling return, top-3 concentration and cash.",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0c10",
+  "theme_color": "#0b0c10",
+  "categories": ["finance", "productivity"],
+  "lang": "en",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable"},
+    {"src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

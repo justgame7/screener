@@ -1,0 +1,40 @@
+name: Refresh holdings data
+
+on:
+  schedule:
+    - cron: '30 2 * * 1'   # every Monday 02:30 UTC (08:00 IST)
+  workflow_dispatch:        # allow manual runs from the Actions tab
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-holdings
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch holdings and scheme details
+        run: python www/mf/scripts/fetch_holdings.py
+
+      - name: Commit if data changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -rf docs/mf && cp -r www/mf docs/mf   # keep the GitHub Pages copy in sync
+          git add www/mf/data docs/mf/data
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Weekly holdings refresh"
+            git push
+          fi

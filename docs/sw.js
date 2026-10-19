@@ -2,8 +2,8 @@
 // Uses a network-first strategy so you always get fresh data/prices,
 // falling back to cache only when offline.
 
-const CACHE_NAME = 'screener-shell-v1';
-const APP_SHELL = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png'];
+const CACHE_NAME = 'screener-shell-v3';
+const APP_SHELL = ['./index.html', './crypto.html', './landing.js', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

@@ -4,7 +4,9 @@ Ichimoku Breakout Screener (Binance USDT-M) — packaged as:
 1. A static site served via **GitHub Pages** from `docs/`
 2. A native **Android app** via **Capacitor**, wrapping the same UI from `www/`
 
-Both `docs/index.html` and `www/index.html` are the same file. If you edit the
+The app opens on a landing page (`index.html`) to pick **Crypto / Stocks** (`crypto.html`) or **Mutual Funds** (`mf/`). `www/` is the source of truth; `docs/` is a copy (`cp -r www/. docs/` minus native-only files).
+
+Both `docs/` and `www/` hold the same files. If you edit the
 screener, copy your changes into **both** folders (or just keep one as the
 source of truth and `cp` it into the other before you push / rebuild).
 

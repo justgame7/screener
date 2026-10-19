@@ -1,7 +1,7 @@
 {
-  "name": "Ichimoku Breakout Screener",
+  "name": "Screener",
   "short_name": "Screener",
-  "description": "Ichimoku-based breakout screener for Binance USDT-M perpetual futures",
+  "description": "Crypto / stock breakout screener and Indian mutual fund screener",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

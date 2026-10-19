@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.mfapi.in; manifest-src 'self'; worker-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MF Screener</title>
+<meta name="theme-color" content="#0b0c10">
+<meta name="description" content="Screen Indian Direct-Growth mutual funds with a six-point checklist.">
+<link rel="manifest" href="../manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MF Screener">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0c10; --s1:#13151b; --s2:#191c24; --s3:#20242e;
+  --line:#272b36; --line2:#1d2029;
+  --tx:#eceef4; --mu:#8c93a6; --fa:#5d6479;
+  --ac:#6482ff; --ac2:#8da2ff; --acd:rgba(100,130,255,.14);
+  --up:#3ddc97; --upd:rgba(61,220,151,.13);
+  --dn:#ff5c70; --dnd:rgba(255,92,112,.13);
+  --am:#ffb547; --amd:rgba(255,181,71,.13);
+  --r:14px;
+  --ui:'Geist',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 var(--ui);-webkit-font-smoothing:antialiased}
+body{min-height:100vh;padding:0 0 80px;overflow-x:clip}
+button{font:inherit;color:inherit;cursor:pointer}
+input,select,textarea{font:inherit;color:var(--tx)}
+a{color:var(--ac2)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.up{color:var(--up)}.dn{color:var(--dn)}.am{color:var(--am)}.mu{color:var(--mu)}
+
+/* layout */
+.wrap{max-width:1180px;margin:0 auto;padding:18px 16px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.eyebrow{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ac2)}
+h1{margin:2px 0 0;font-size:26px;letter-spacing:-.02em;font-weight:650}
+.sub{color:var(--mu);font-size:13px;margin-top:2px}
+.btn{border:1px solid var(--line);background:var(--s2);border-radius:10px;padding:9px 14px;font-weight:550;font-size:13px;transition:.15s}
+.btn:hover{border-color:var(--fa);background:var(--s3)}
+.btn.pri{background:var(--ac);border-color:var(--ac);color:#fff}
+.btn.pri:hover{background:#7b95ff}
+.btn.ghost{background:transparent}
+.btn.sm{padding:6px 10px;font-size:12px;border-radius:8px}
+.prog{height:2px;background:transparent;margin:-8px 0 14px;border-radius:2px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--ac);transition:width .2s}
+.tabs{display:flex;gap:4px;background:var(--s1);border:1px solid var(--line2);border-radius:12px;padding:4px;width:max-content;max-width:100%;overflow:auto;margin-bottom:16px}
+.tabs button{border:0;background:transparent;padding:8px 16px;border-radius:9px;color:var(--mu);font-weight:550;font-size:13px}
+.tabs button.on{background:var(--s3);color:var(--tx);box-shadow:inset 0 0 0 1px var(--line)}
+.card,.kpi,.crit{min-width:0}
+.card{background:var(--s1);border:1px solid var(--line2);border-radius:var(--r);padding:16px}
+.card h3{margin:0 0 12px;font-size:13px;font-weight:600;letter-spacing:.02em}
+.card h3 small{color:var(--mu);font-weight:400;margin-left:6px}
+.grid{display:grid;gap:12px}
+.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
+.kpi{background:var(--s1);border:1px solid var(--line2);border-radius:var(--r);padding:14px}
+.kpi small{display:block;color:var(--mu);font-size:11.5px;margin-bottom:4px}
+.kpi b{font:600 22px var(--mono);letter-spacing:-.02em}
+.kpi i{display:block;font-style:normal;color:var(--fa);font-size:11px;margin-top:2px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--s2);border-radius:99px;padding:2px 9px;font-size:11.5px;color:var(--mu);white-space:nowrap}
+.chip.up{color:var(--up);background:var(--upd);border-color:transparent}
+.chip.dn{color:var(--dn);background:var(--dnd);border-color:transparent}
+.chip.am{color:var(--am);background:var(--amd);border-color:transparent}
+.chip.ac{color:var(--ac2);background:var(--acd);border-color:transparent}
+.note{color:var(--mu);font-size:12.5px}
+.empty{padding:36px 16px;text-align:center;color:var(--mu)}
+.empty b{display:block;color:var(--tx);font-size:16px;margin-bottom:4px}
+.lbl{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mu)}
+.in{width:100%;background:var(--s2);border:1px solid var(--line);border-radius:10px;padding:9px 11px;outline:none;font-family:var(--mono);font-size:14px}
+.in:focus{border-color:var(--ac);box-shadow:0 0 0 3px var(--acd)}
+.in.txt{font-family:var(--ui)}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{min-width:0}
+.row.wrapm{flex-wrap:wrap}
+.chk{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;user-select:none}
+.chk input{accent-color:var(--ac);width:16px;height:16px}
+.seg{display:inline-flex;flex-wrap:wrap;background:var(--s2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px;max-width:100%}
+.seg button{border:0;background:transparent;padding:6px 12px;border-radius:7px;color:var(--mu);font-size:13px;font-weight:550;white-space:nowrap}
+.seg button.on{background:var(--s3);color:var(--tx);box-shadow:inset 0 0 0 1px var(--line)}
+.seg.good button.on{background:var(--upd);color:var(--up);box-shadow:inset 0 0 0 1px rgba(61,220,151,.4)}
+
+/* checklist */
+.crit{background:var(--s2);border:1px solid var(--line2);border-radius:12px;padding:12px;display:grid;gap:6px;align-content:start}
+.crit.off{opacity:.5}
+.crit b{font-size:14px}
+.crit .row{margin-top:4px}
+.crit .in{width:84px;padding:6px 9px}
+.crit .op{font:600 15px var(--mono);color:var(--mu)}
+
+/* collapsible checklist */
+.cl-head{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;padding:0;text-align:left;cursor:pointer}
+.cl-head h3{margin:0;flex:1 1 auto;min-width:0}
+.cl-head h3 small{display:inline}
+.cl-sum{display:none;flex:1;gap:5px;flex-wrap:wrap;min-width:0}
+.cl-arrow{margin-left:auto;color:var(--mu);transition:transform .2s;font-size:16px}
+#checklist.collapsed .cl-body{display:none}
+#checklist.collapsed .cl-sum{display:flex}
+#checklist.collapsed .cl-arrow{transform:rotate(-90deg)}
+#checklist:not(.collapsed) .cl-body{margin-top:12px}
+@media(max-width:700px){#checklist.collapsed .cl-sum{display:none}.cl-head h3 small{display:block;margin:2px 0 0}.cl-arrow{flex:0 0 auto}}
+
+/* category picker */
+.catpick{margin:16px 0 12px;background:var(--s1);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.catpick.open{border-color:var(--tx)}
+.cp-head{display:flex;align-items:center;gap:12px;width:100%;border:0;background:transparent;padding:14px 16px;text-align:left;cursor:pointer}
+.cp-lbl{color:var(--mu);font-size:13px}
+.cp-val{margin-left:auto;font-weight:650;font-size:15px}
+.cp-val small{color:var(--fa);font:500 12px var(--mono);margin-left:6px}
+.cp-arrow{color:var(--ac2);transition:transform .2s}
+.catpick.open .cp-arrow{transform:rotate(180deg)}
+.cp-grid{display:none;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px 12px 14px;border-top:1px solid var(--line2)}
+.catpick.open .cp-grid{display:grid}
+@media(min-width:900px){.cp-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.cp-opt{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;border:1px solid var(--line2);background:var(--s2);border-radius:10px;padding:12px 14px;font-size:13.5px;color:var(--tx)}
+.cp-opt:hover{border-color:var(--fa)}
+.cp-opt.on{border-color:var(--up);background:var(--upd)}
+.cp-opt small{color:var(--fa);font:500 11.5px var(--mono)}
+
+/* filters */
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0 12px;align-items:center}
+.fchip{border:1px solid var(--line);background:transparent;border-radius:99px;padding:5px 12px;font-size:12.5px;color:var(--mu)}
+.fchip.on{background:var(--acd);border-color:var(--ac);color:var(--tx)}
+.fchip small{color:var(--fa);margin-left:4px;font-family:var(--mono)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.toolbar .in{width:auto}
+
+/* phone: toolbar controls fill the screen width (desktop layout unchanged) */
+@media(max-width:600px){
+  .toolbar{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+  .toolbar .seg{display:grid;width:100%;grid-column:1/-1}
+  #showSeg{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #sortSeg{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .toolbar .seg button{padding:8px 4px;text-align:center;min-width:0}
+  .toolbar #q{width:100% !important;grid-column:1/-1}
+  .toolbar .chk{justify-self:start}
+  .toolbar #count{margin-left:0;justify-self:end}
+}
+
+/* fund list */
+.tlist{display:grid;gap:10px}
+.trow{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;background:var(--s1);border:1px solid var(--line2);border-radius:var(--r);padding:12px 14px;cursor:pointer;transition:.15s}
+.trow:hover{border-color:var(--line);background:var(--s2)}
+.av{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font:600 13px var(--mono);background:var(--s3);border:1px solid var(--line)}
+.av.full{background:var(--upd);color:var(--up);border-color:rgba(61,220,151,.4)}
+.trow .m1{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.trow .m1 b{font-size:15px}
+.trow .m2{color:var(--mu);font-size:12px;margin-top:3px}
+.trow .m4{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.trow .m4 span{font-family:var(--mono);font-size:11.5px;color:var(--tx);border:1px solid var(--line);background:var(--s2);border-radius:8px;padding:2px 8px;white-space:nowrap}
+.trow .m3{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.trow .rt{text-align:right}
+.trow .rt b{font:600 18px var(--mono)}
+.trow .rt small{display:block;color:var(--mu);font-size:11px}
+@media(max-width:600px){.trow{grid-template-columns:auto 1fr}.trow .rt{grid-column:1/3;text-align:left;display:flex;gap:8px;align-items:baseline}}
+
+/* bars (universe) */
+.bars{display:grid;gap:8px}
+.bar{display:grid;grid-template-columns:190px 1fr 56px;gap:10px;align-items:center;font-size:12.5px;cursor:pointer;padding:3px 0}
+@media(max-width:600px){.bar{grid-template-columns:120px 1fr 44px}}
+.bar:hover .nm{color:var(--ac2)}
+.bar .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .tr{height:10px;background:var(--s2);border-radius:99px;position:relative;overflow:hidden}
+.bar .tr i{position:absolute;top:0;bottom:0;left:0;border-radius:99px;background:var(--ac)}
+.bar .vl{text-align:right;font:500 12px var(--mono)}
+
+/* sheet */
+.ov{position:fixed;inset:0;background:rgba(5,6,9,.72);z-index:50;display:none;backdrop-filter:blur(3px)}
+.ov.open{display:block}
+.sheet{position:absolute;inset:0;background:var(--bg);overflow-y:auto;overflow-x:hidden;animation:up .22s ease}
+@keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@media(min-width:1100px){.sheet{inset:20px 40px;border:1px solid var(--line);border-radius:18px}}
+.sh-head{position:sticky;top:0;z-index:5;background:rgba(11,12,16,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line2);padding:12px 16px;display:flex;align-items:center;gap:10px}
+.sh-head h2{margin:0;font-size:16px;flex:1;min-width:0;overflow-wrap:anywhere}
+.sh-head .chip,.sh-head .btn{flex:0 0 auto}
+.sh-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px;padding:16px}
+@media(max-width:1000px){.sh-body{grid-template-columns:minmax(0,1fr)}}
+.sh-body>*,.col>*{min-width:0}
+.col{display:grid;gap:12px;align-content:start}
+.sumgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media(max-width:600px){.sumgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sumgrid div{min-width:0;overflow-wrap:anywhere;background:var(--s2);border:1px solid var(--line2);border-radius:10px;padding:8px 10px}
+.sumgrid small{display:block;color:var(--mu);font-size:10.5px}
+.sumgrid b{font:600 14px var(--mono)}
+.sumgrid b.t{font:500 12.5px var(--ui)}
+.q{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line2)}
+.q:first-of-type{border-top:0}
+.q .qt{font-size:13px;min-width:0;overflow-wrap:anywhere}
+.q .qt small{display:block;color:var(--fa);font-size:11px}
+.q.dis{opacity:.45}
+.kpi{position:relative}
+.info{width:16px;height:16px;border-radius:50%;border:1px solid var(--fa);background:transparent;color:var(--mu);font:600 10px/1 var(--mono);padding:0;margin-left:4px;vertical-align:1px;cursor:pointer}
+.info:hover,.info.on{border-color:var(--ac);color:var(--ac2);background:var(--acd)}
+.tip{position:absolute;right:0;width:min(320px,85vw);top:100%;margin-top:6px;z-index:20;background:var(--s3);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.5;color:var(--tx);box-shadow:0 10px 30px rgba(0,0,0,.45)}
+/* full holdings page */
+#ov2{z-index:60}
+.hd-head{display:flex;justify-content:space-between;color:var(--mu);font-size:12.5px;padding:2px 0 8px;border-bottom:1px solid var(--line2)}
+.hd-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:13px 0;border-bottom:1px solid var(--line2)}
+.hd-row:last-child{border-bottom:0}
+.hd-n{min-width:0;overflow-wrap:anywhere;font-size:14px}
+.hd-n small{display:block;color:var(--fa);font-size:11px}
+.hd-row b{flex:0 0 auto}
+.chart-host{background:#0a0b0f;border:1px solid var(--line2);border-radius:12px;overflow:hidden}
+.chart-host svg{display:block;width:100%;height:220px}
+.fld{display:grid;gap:5px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--s3);border:1px solid var(--line);padding:10px 16px;border-radius:10px;font-size:13px;z-index:99;opacity:0;pointer-events:none;transition:.2s}
+.toast.on{opacity:1}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="eyebrow"><a href="../index.html" style="color:inherit;text-decoration:none">&larr; Home</a> &middot; Mutual Fund Screener</div>
+      <h1>Screener</h1>
+      <div class="sub" id="status">Loading…</div>
+    </div>
+    <div class="row wrapm">
+      <button class="btn ghost sm" id="inst" type="button" title="Install app" aria-label="Install app" hidden>Install app</button>
+      <button class="btn pri" id="refresh" type="button">Refresh data</button>
+    </div>
+  </div>
+  <div class="prog"><i id="prog"></i></div>
+
+  <div class="tabs" id="tabs">
+    <button data-tab="screen" class="on">Screener</button>
+    <button data-tab="universe">Universe</button>
+  </div>
+
+  <!-- SCREENER -->
+  <div id="v_screen">
+    <div class="grid g4" id="kpis"></div>
+
+    <div class="card collapsed" id="checklist" style="margin-top:12px">
+      <button class="cl-head" id="clToggle" type="button" aria-expanded="false">
+        <h3>6-point checklist <small>a fund must pass every active check to qualify</small></h3>
+        <span class="cl-sum" id="clSum"></span>
+        <span class="cl-arrow" aria-hidden="true">▾</span>
+      </button>
+      <div class="cl-body">
+      <div class="grid g3" id="crits"></div>
+      <div class="row wrapm" style="margin-top:12px">
+        <label class="chk"><input type="checkbox" id="unkPass"> Funds with no holdings data pass checks 5 &amp; 6</label>
+        <span style="flex:1"></span>
+        <button class="btn ghost sm" id="allOn" type="button">Reset defaults</button>
+      </div>
+      </div>
+    </div>
+
+    <div class="catpick" id="catpick">
+      <button class="cp-head" id="cpToggle" type="button" aria-expanded="false">
+        <span class="cp-lbl">Category</span><span class="cp-val" id="cpVal">All</span><span class="cp-arrow" aria-hidden="true">▾</span>
+      </button>
+      <div class="cp-grid" id="cats"></div>
+    </div>
+    <div class="toolbar">
+      <div class="seg good" id="showSeg">
+        <button data-v="all" class="on">Qualifying</button>
+        <button data-v="1">Near misses</button>
+        <button data-v="0">All funds</button>
+      </div>
+      <div class="seg" id="sortSeg">
+        <button data-k="passed" class="on">Checks</button>
+        <button data-k="arr">3Y ARR</button>
+        <button data-k="c1">1Y</button>
+        <button data-k="dd">Max DD</button>
+        <button data-k="top3">Top 3</button>
+        <button data-k="age">Age</button>
+        <button data-k="name">Name</button>
+        <button data-k="grp">Category</button>
+      </div>
+      <input class="in txt" id="q" placeholder="Search name / fund house" style="width:220px">
+      <label class="chk mu" title="Minimum fund age">Min age <input class="in" id="f_age" type="number" value="0" min="0" max="30" style="width:64px;padding:6px 8px"> yrs</label>
+      <span class="note" id="count" style="margin-left:auto"></span>
+    </div>
+    <div class="tlist" id="list"></div>
+    <div style="text-align:center;margin-top:12px"><button class="btn ghost" id="more" type="button" hidden>Show more</button></div>
+  </div>
+
+  <!-- UNIVERSE -->
+  <div id="v_universe" hidden>
+    <div class="card">
+      <h3>Fund universe <small>Direct-Growth schemes loaded · click a category to screen it</small></h3>
+      <div class="bars" id="breakdown"></div>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
+<div class="ov" id="ov2"><div class="sheet" id="sheet2"></div></div>
+<div class="toast" id="toast"></div>
+<script src="data/holdings.js"></script>
+
+<script src="app.js"></script>
+</body>
+</html>
