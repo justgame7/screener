@@ -7,27 +7,53 @@
 // =========================================================================
 // TIMEFRAME SWITCHES - one row per timeframe, both toggles side by side:
 //
-//   momentumDisplacement  ->  momentum breakout + ICT bullish displacement
-//   retracement           ->  50% / 61.8% retracement screen
+//   momentumDisplacementDonchain  ->  momentum breakout + ICT bullish
+//                                     displacement + Donchian 20/10 & 55/20
+//   retracement                   ->  50% / 61.8% retracement screen
 //
 // Flip a value to `false` to stop THAT screen from scanning THAT timeframe
 // (no section for it in that screen's Telegram message). The two columns are
-// fully independent - e.g. Daily can be off for momentum/displacement and on
-// for retracement, or the reverse. A timeframe's candles are only fetched if
-// at least one of its two switches is on, and only once. Momentum and
-// displacement share one switch, so they always cover the same timeframes.
+// fully independent - e.g. Daily can be off for momentum/displacement/donchian
+// and on for retracement, or the reverse. A timeframe's candles are only
+// fetched if at least one of its two switches is on, and only once. Momentum,
+// displacement and Donchian share one switch, so they always cover the same
+// timeframes.
 //
-// Weekly is retracement-only: it has no momentumDisplacement switch, and
-// those screens never run on it.
+// Weekly is retracement-only: it has no momentumDisplacementDonchain switch,
+// and those screens never run on it.
 //
 // Leave TIMEFRAMES below (resolution, historyDays, thresholds) untouched.
 // =========================================================================
 const TIMEFRAME_SWITCHES = {
-  //          momentumDisplacement   retracement
-  '1H':     { momentumDisplacement: true, retracement: false },
-  '4H':     { momentumDisplacement: true, retracement: true },
-  Daily:    { momentumDisplacement: true, retracement: true },
-  Weekly:   {                             retracement: false }, // retracement-only
+  //          momentumDisplacementDonchain   retracement
+  '1H':     { momentumDisplacementDonchain: true, retracement: false },
+  '4H':     { momentumDisplacementDonchain: true, retracement: true },
+  Daily:    { momentumDisplacementDonchain: true, retracement: true },
+  Weekly:   {                                     retracement: false }, // retracement-only
+};
+
+// =========================================================================
+// DONCHIAN SWITCHES - Donchian channel breakout (turtle-style) screen.
+//
+// Which system(s) to run (entry-lookback / exit-lookback):
+//   '20/10' -> long: close > highest high of prior 20 bars (exit: lowest low
+//                    of prior 10) ; short: close < lowest low of prior 20
+//                    (exit: highest high of prior 10)
+//   '55/20' -> same, with 55 / 20 bars
+// Which side(s) to report:
+//   long  -> breakout above the entry-channel high
+//   short -> breakdown below the entry-channel low
+// Set any to false to disable it. If every system or both sides are false,
+// the Donchian screen is skipped entirely (no Donchian message is sent).
+// Timeframes are controlled by TIMEFRAME_SWITCHES.momentumDisplacementDonchain.
+// =========================================================================
+const DONCHIAN_SYSTEM_ENABLED = {
+  '20/10': true,
+  '55/20': true,
+};
+const DONCHIAN_DIRECTION_ENABLED = {
+  long: true,
+  short: true,
 };
 
 // =========================================================================
@@ -106,7 +132,8 @@ const RETRACEMENT_DIRECTION_ENABLED = {
 //   or both. A coin matching both levels is shown once, tagged "50% + 61.8%",
 //   in a single retracement alert. Retracement also has its own per-timeframe
 //   on/off (TIMEFRAME_SWITCHES[tf].retracement), independent of the
-//   momentumDisplacement switch, which governs momentum + displacement only.
+//   momentumDisplacementDonchain switch, which governs momentum + displacement
+// + Donchian.
 //
 // These screens are INDEPENDENT of each other and of timeframe - a coin
 // passing on 1H has no bearing on whether it passes on 4H/Daily, and passing
@@ -166,8 +193,16 @@ const RETRACEMENT_DIRECTION_ENABLED = {
 const RETRACEMENT_ACTIVE = RETRACEMENT_DIRECTION_ENABLED.bull || RETRACEMENT_DIRECTION_ENABLED.bear;
 
 // Which screens run on a given timeframe (see the switch blocks at the top of the file).
-const mdEnabled = (tf) => !tf.retracementOnly && !!(TIMEFRAME_SWITCHES[tf.label] || {}).momentumDisplacement; // momentum + displacement (never on retracement-only timeframes)
+const mdEnabled = (tf) => !tf.retracementOnly && !!(TIMEFRAME_SWITCHES[tf.label] || {}).momentumDisplacementDonchain; // momentum + displacement + donchian timeframe gate (never on retracement-only timeframes)
 const retrEnabled = (tf) => RETRACEMENT_ACTIVE && !!(TIMEFRAME_SWITCHES[tf.label] || {}).retracement; // retracement
+
+// Donchian systems: entry lookback / exit lookback, filtered by the switches above.
+const DONCHIAN_SYSTEMS = [
+  { key: '20/10', entry: 20, exit: 10 },
+  { key: '55/20', entry: 55, exit: 20 },
+].filter((s) => DONCHIAN_SYSTEM_ENABLED[s.key]);
+const DONCHIAN_ACTIVE = DONCHIAN_SYSTEMS.length > 0 && (DONCHIAN_DIRECTION_ENABLED.long || DONCHIAN_DIRECTION_ENABLED.short);
+const dcEnabled = (tf) => DONCHIAN_ACTIVE && mdEnabled(tf); // donchian
 
 const COINDCX_API_BASE = 'https://api.coindcx.com';
 const COINDCX_PUBLIC_BASE = 'https://public.coindcx.com';
@@ -506,6 +541,55 @@ function computeRetracementSignal(symbol, candles, tf) {
   return result;
 }
 
+// ---------------- Donchian channel breakout core ----------------
+// For each enabled system (entry N / exit M), the channel is built from the
+// N bars BEFORE the latest candle (latest excluded, so it can break out):
+//   long  signal: close > highest high of prior N bars
+//   short signal: close < lowest low of prior N bars
+// exitLevel is the opposite-side M-bar channel edge (the system's trailing
+// exit / stop reference): lowest low of prior M for longs, highest high of
+// prior M for shorts. Same latest-candle convention as the other screens.
+function computeDonchianSignal(symbol, candles, tf) {
+  const needed = Math.max(...DONCHIAN_SYSTEMS.map((s) => s.entry)) + 1;
+  if (candles.length < needed) {
+    throw new Error(`insufficient bar history (${candles.length}/${needed} bars)`);
+  }
+
+  const last = candles[candles.length - 1];
+  const price = last.close;
+  if (!Number.isFinite(price) || !(price > 0)) throw new Error('current price unavailable');
+
+  const signals = [];
+  for (const sys of DONCHIAN_SYSTEMS) {
+    const entryWin = candles.slice(-(sys.entry + 1), -1);
+    const exitWin = candles.slice(-(sys.exit + 1), -1);
+    const upper = Math.max(...entryWin.map((c) => c.high));
+    const lower = Math.min(...entryWin.map((c) => c.low));
+    if (DONCHIAN_DIRECTION_ENABLED.long && price > upper) {
+      signals.push({
+        system: sys.key, side: 'long', level: upper,
+        exitLevel: Math.min(...exitWin.map((c) => c.low)),
+        breakPct: (price - upper) / upper * 100,
+      });
+    }
+    if (DONCHIAN_DIRECTION_ENABLED.short && price < lower) {
+      signals.push({
+        system: sys.key, side: 'short', level: lower,
+        exitLevel: Math.max(...exitWin.map((c) => c.high)),
+        breakPct: (lower - price) / lower * 100,
+      });
+    }
+  }
+
+  return {
+    symbol,
+    price,
+    signals,
+    passed: signals.length > 0,
+    volToday: price * last.volume, // USDT notional of the latest candle - used for the minVolume gate
+  };
+}
+
 // Fetches candles ONCE per symbol/timeframe and evaluates all presets
 // against that same data. The presets are scored independently (own
 // try/catch) so an edge case that trips one preset's bar-count guard doesn't
@@ -525,6 +609,13 @@ async function screenSymbol(symbol, tf) {
       result.displacement = computeDisplacementSignal(symbol, candles, tf);
     } catch (e) {
       result.displacementError = e.message;
+    }
+  }
+  if (dcEnabled(tf)) {
+    try {
+      result.donchian = computeDonchianSignal(symbol, candles, tf);
+    } catch (e) {
+      result.donchianError = e.message;
     }
   }
   if (retrEnabled(tf)) {
@@ -582,6 +673,7 @@ function logErrorBuckets(tfLabel, presetLabel, errored) {
 async function runTimeframeScan(symbols, tf) {
   const screensOn = [
     mdEnabled(tf) && 'momentum breakout + bullish displacement',
+    dcEnabled(tf) && `Donchian ${DONCHIAN_SYSTEMS.map((s) => s.key).join(' + ')}`,
     retrEnabled(tf) && '50%/61.8% retracement',
   ].filter(Boolean).join(' + ');
   console.log(`\nScanning ${symbols.length} symbols on ${tf.label} (resolution=${tf.resolution}) for ${screensOn}...`);
@@ -648,6 +740,27 @@ async function runTimeframeScan(symbols, tf) {
     }
   }
 
+  // ---- Donchian 20/10 & 55/20 ----
+  // Hits are flattened to one row per (symbol, system, side) signal.
+  let donchianHits = [];
+  if (dcEnabled(tf)) {
+    const dcScanned = scanned.filter((r) => r.donchian);
+    const dcErrored = scanned.filter((r) => r.donchianError).map((r) => ({ symbol: r.symbol, error: r.donchianError }));
+    const dcMatched = dcScanned.filter((r) => r.donchian.passed);
+    donchianHits = dcMatched
+      .filter((r) => r.donchian.volToday > tf.minVolume)
+      .flatMap((r) => r.donchian.signals.map((s) => ({ symbol: r.symbol, price: r.donchian.price, ...s })))
+      .sort((a, b) => b.breakPct - a.breakPct); // strongest breaks first
+
+    console.log(
+      `[${tf.label}] Donchian: ${symbols.length} symbols -> ${dcScanned.length} scanned ok, ` +
+      `${fetchErrored.length + dcErrored.length} errored, ` +
+      `${dcMatched.length} symbols with a breakout (${DONCHIAN_SYSTEMS.map((s) => s.key).join(', ')}), ` +
+      `${donchianHits.length} signals passed the $${tf.minVolume.toLocaleString()} volume gate.`
+    );
+    logErrorBuckets(tf.label, 'Donchian', [...fetchErrored, ...dcErrored]);
+  }
+
   // ---- 50% / 61.8% retracement ----
   let retracementHits = [];
   if (retrEnabled(tf)) {
@@ -691,7 +804,7 @@ async function runTimeframeScan(symbols, tf) {
     }
   }
 
-  return { momentumHits, dispHits, retracementHits };
+  return { momentumHits, dispHits, donchianHits, retracementHits };
 }
 
 // ---------------- formatting ----------------
@@ -729,6 +842,23 @@ function fmtRetraceRow(r) {
   if (r.pass50) tags.push('50%');
   if (r.pass618) tags.push('61.8%');
   return `<b>$${coin}</b> ${arrow} · ${tags.join(' + ')} · ₮ <code>${fmt(r.price)}</code>`;
+}
+// "coinname . % beyond channel . ltp . exit level" - e.g. "$ORCA · +2.31% · ₮1.8460 · exit ₮1.7100"
+function fmtDonchianRow(r) {
+  const coin = stripSizePrefix(stripUsdt(r.symbol));
+  return `<b>$${coin}</b> · ${r.side === 'long' ? '+' : '-'}${fmt(r.breakPct, 2)}% · ₮ <code>${fmt(r.price)}</code> · exit ₮ <code>${fmt(r.exitLevel)}</code>`;
+}
+// Grouped: per system (20/10, then 55/20), Long then Short; empty groups omitted.
+function fmtDonchianGroups(hits) {
+  const blocks = [];
+  for (const sys of DONCHIAN_SYSTEMS) {
+    for (const side of [{ key: 'long', arrow: '▲', name: 'Long' }, { key: 'short', arrow: '▼', name: 'Short' }]) {
+      const rows = hits.filter((r) => r.system === sys.key && r.side === side.key);
+      if (!rows.length) continue;
+      blocks.push(`<b>${side.arrow} ${sys.key} ${side.name} (${rows.length})</b>\n${rows.map(fmtDonchianRow).join('\n')}`);
+    }
+  }
+  return blocks.join('\n\n');
 }
 function fmtSection(rows, formatter = fmtRow) {
   return rows.length ? rows.map(formatter).join('\n') : 'none';
@@ -822,7 +952,8 @@ async function main() {
   const activeTimeframes = TIMEFRAMES.filter((tf) => mdEnabled(tf) || retrEnabled(tf));
 
   const mdSkipped = TIMEFRAMES.filter((tf) => !tf.retracementOnly && !mdEnabled(tf)).map((tf) => tf.label);
-  if (mdSkipped.length) console.log(`Momentum/displacement: timeframe(s) disabled via TIMEFRAME_SWITCHES.momentumDisplacement, skipping: ${mdSkipped.join(', ')}`);
+  if (mdSkipped.length) console.log(`Momentum/displacement/donchian: timeframe(s) disabled via TIMEFRAME_SWITCHES.momentumDisplacementDonchain, skipping: ${mdSkipped.join(', ')}`);
+  if (!DONCHIAN_ACTIVE) console.log('Donchian: all systems or both directions disabled via DONCHIAN_SYSTEM_ENABLED / DONCHIAN_DIRECTION_ENABLED - Donchian screen skipped.');
   if (!RETRACEMENT_ACTIVE) {
     console.log('Both retracement directions disabled via RETRACEMENT_DIRECTION_ENABLED - retracement screen skipped.');
   } else {
@@ -839,8 +970,8 @@ async function main() {
 
   const scans = [];
   for (const tf of activeTimeframes) {
-    const { momentumHits, dispHits, retracementHits } = await runTimeframeScan(symbols, tf);
-    scans.push({ tf, momentumHits, dispHits, retracementHits });
+    const { momentumHits, dispHits, donchianHits, retracementHits } = await runTimeframeScan(symbols, tf);
+    scans.push({ tf, momentumHits, dispHits, donchianHits, retracementHits });
   }
 
   const stamp = formatIST(new Date());
@@ -852,6 +983,7 @@ async function main() {
   // is skipped altogether if none are (see mdEnabled / retrEnabled).
   const mdScans = scans.filter((s) => mdEnabled(s.tf));
   const retrScans = scans.filter((s) => retrEnabled(s.tf));
+  const dcScans = scans.filter((s) => dcEnabled(s.tf));
 
   const momentumMessage = mdScans.length
     ? `<b>Momentum breakout screener (CoinDCX) — ${stamp}</b>\n\n` +
@@ -865,6 +997,15 @@ async function main() {
       `Body ≥ ${DISPLACEMENT_MULT}× ATR(${ATR_LENGTH}), bullish candle`
     : null;
 
+  const donchianMessage = dcScans.length
+    ? `<b>Donchian ${DONCHIAN_SYSTEMS.map((s) => s.key).join(' / ')} screener (CoinDCX) — ${stamp}</b>\n\n` +
+      dcScans.map((s) => `<b>— ${s.tf.label} —</b>\n` + (s.donchianHits.length
+        ? `<b>Breakouts (${s.donchianHits.length})</b>\n\n${fmtDonchianGroups(s.donchianHits)}`
+        : 'none')).join('\n\n') + '\n\n' +
+      `Close beyond the prior entry-bar high/low (entry/exit bars per system) · % = distance past the channel · exit = opposite exit-channel edge · ` +
+      `sides: ${[DONCHIAN_DIRECTION_ENABLED.long && 'long', DONCHIAN_DIRECTION_ENABLED.short && 'short'].filter(Boolean).join(' + ')}`
+    : null;
+
   const retracementMessage = retrScans.length
     ? `<b>50% / 61.8% retracement screener (CoinDCX) — ${stamp}</b>\n\n` +
       retrScans.map((s) => `<b>— ${s.tf.label} —</b>\n` + (s.retracementHits.length
@@ -874,7 +1015,7 @@ async function main() {
       `legs: ${[RETRACEMENT_DIRECTION_ENABLED.bull && 'bull', RETRACEMENT_DIRECTION_ENABLED.bear && 'bear'].filter(Boolean).join(' + ')}`
     : null;
 
-  for (const m of [momentumMessage, displacementMessage, retracementMessage]) {
+  for (const m of [momentumMessage, displacementMessage, donchianMessage, retracementMessage]) {
     if (m) console.log('\n' + m.replace(/<\/?[a-z]+>/g, ''));
   }
 
@@ -889,6 +1030,9 @@ async function main() {
   }
   if (displacementMessage) {
     sends.push({ label: 'Displacement', text: displacementMessage, token: process.env.DISPLACEMENT_TELEGRAM_BOT_TOKEN, chatId: process.env.DISPLACEMENT_TELEGRAM_CHAT_ID });
+  }
+  if (donchianMessage) {
+    sends.push({ label: 'Donchian', text: donchianMessage, token: process.env.DONCHIAN_TELEGRAM_BOT_TOKEN, chatId: process.env.DONCHIAN_TELEGRAM_CHAT_ID });
   }
   if (retracementMessage) {
     sends.push({ label: 'Retracement', text: retracementMessage, token: process.env.RETRACEMENT_TELEGRAM_BOT_TOKEN, chatId: process.env.RETRACEMENT_TELEGRAM_CHAT_ID });
