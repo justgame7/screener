@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Screener</title>
@@ -13,45 +13,76 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Screener">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+:root{--bg:#07080B;--panel:rgba(18,21,28,.58);--panel2:rgba(255,255,255,.045);--text:#EEF3F1;--muted:#8B93A3;--accent:#35E0C0;--blue:#5B8CFF;--violet:#A78BFA}
 *{box-sizing:border-box}
-html,body{margin:0;background:#07080B;color:#EEF3F1;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
-body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;
- background:radial-gradient(720px 480px at 8% -6%,rgba(53,224,192,.13),transparent 60%),radial-gradient(680px 520px at 96% 8%,rgba(100,130,255,.12),transparent 60%),#07080B}
-.wrap{width:100%;max-width:760px}
-h1{margin:0 0 6px;font-size:30px;letter-spacing:-.02em}
-p.sub{margin:0 0 26px;color:#8B93A3}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:'Space Grotesk',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px 18px;
+ background:radial-gradient(720px 480px at 8% -6%,rgba(53,224,192,.14),transparent 60%),radial-gradient(680px 520px at 96% 8%,rgba(91,140,255,.12),transparent 60%),radial-gradient(900px 620px at 50% 108%,rgba(167,139,250,.09),transparent 55%),var(--bg)}
+.wrap{width:100%;max-width:720px}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#35E0C0,#5B8CFF);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 8px 24px -6px rgba(53,224,192,.5)}
+.eyebrow{font:600 11px ui-monospace,Menlo,Consolas,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+h1{margin:2px 0 0;font-size:30px;line-height:1.1;letter-spacing:-.02em;font-weight:700}
+p.sub{margin:0 0 20px;color:var(--muted);font-size:15px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:560px){.grid{grid-template-columns:1fr}}
-a.card{display:block;padding:26px 22px;border-radius:16px;text-decoration:none;color:inherit;background:rgba(18,21,28,.7);border:1px solid rgba(255,255,255,.11);transition:.15s}
-a.card:hover,a.card:focus-visible{transform:translateY(-2px);outline:none}
-a.crypto:hover,a.crypto:focus-visible{border-color:#35E0C0;box-shadow:0 8px 28px -8px rgba(53,224,192,.4)}
-a.mf:hover,a.mf:focus-visible{border-color:#6482ff;box-shadow:0 8px 28px -8px rgba(100,130,255,.4)}
+a.card{position:relative;overflow:hidden;isolation:isolate;display:flex;flex-direction:column;gap:12px;min-height:210px;padding:20px 18px;border-radius:22px;text-decoration:none;color:inherit;
+ background:linear-gradient(165deg,var(--panel2) 0%,var(--panel) 60%);border:1px solid rgba(255,255,255,.07);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 1px 2px rgba(0,0,0,.3);
+ transition:transform .18s cubic-bezier(.22,.8,.3,1),border-color .18s ease,box-shadow .22s ease;animation:cardIn .5s cubic-bezier(.22,.8,.3,1) backwards}
+a.card:nth-child(2){animation-delay:.08s}
+a.card::before{content:'';position:absolute;top:-42%;left:-14%;width:75%;height:75%;background:radial-gradient(circle,rgba(var(--glow),.32),transparent 72%);filter:blur(20px);pointer-events:none;z-index:-1}
+a.card:hover,a.card:focus-visible{transform:translateY(-4px);outline:none;border-color:rgba(var(--glow),.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 16px 34px -12px rgba(var(--glow),.45)}
+a.card:active{transform:translateY(-1px) scale(.98)}
+a.crypto{--glow:53,224,192}
+a.mf{--glow:100,130,255}
+.icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.crypto .icon{background:linear-gradient(135deg,#35e0c0,#1c8f79)}
+.mf .icon{background:linear-gradient(135deg,#6482ff,#3ddc97)}
+.card h2{margin:4px 0 0;font-size:19px;font-weight:700}
+.card p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.tags span{font-size:11px;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);color:var(--muted)}
+.go{position:absolute;top:18px;right:18px;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);color:var(--muted);transition:.18s}
+a.card:hover .go{background:rgba(var(--glow),.2);color:#fff;transform:translateX(2px)}
+.foot{text-align:center;margin-top:24px}
 [hidden]{display:none!important}
-#installBtn{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:inherit;border-radius:10px;padding:10px 18px;font:inherit;font-weight:600;cursor:pointer}
-#installBtn:hover{border-color:#35E0C0}
-.ic{font-size:34px;margin-bottom:12px}
-.card h2{margin:0 0 6px;font-size:20px}
-.card p{margin:0;color:#8B93A3;font-size:14px;line-height:1.5}
+#installBtn{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:inherit;border-radius:12px;padding:10px 18px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:.15s}
+#installBtn:hover{border-color:var(--accent);box-shadow:0 8px 22px -10px rgba(53,224,192,.6)}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}}
+@media(prefers-reduced-motion:reduce){a.card{animation:none;transition:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Screener</h1>
-  <p class="sub">What would you like to screen?</p>
+  <div class="brand">
+    <div class="logo" aria-hidden="true">📊</div>
+    <div>
+      <div class="eyebrow">Market Screeners</div>
+      <h1>Screener</h1>
+    </div>
+  </div>
+  <p class="sub">What would you like to screen today?</p>
   <div class="grid">
     <a class="card crypto" href="./crypto.html">
-      <div class="ic">📈</div>
+      <span class="go" aria-hidden="true">→</span>
+      <div class="icon" aria-hidden="true">📈</div>
       <h2>Crypto / Stocks</h2>
       <p>Ichimoku cloud breakouts, custom screens and trade tools on live market data.</p>
+      <div class="tags"><span>Binance</span><span>Bybit</span><span>NSE &amp; US</span></div>
     </a>
     <a class="card mf" href="./mf/index.html">
-      <div class="ic">🏦</div>
+      <span class="go" aria-hidden="true">→</span>
+      <div class="icon" aria-hidden="true">🏦</div>
       <h2>Mutual Funds</h2>
-      <p>Screen Indian direct-growth funds: drawdown, returns, ATH distance, concentration and cash.</p>
+      <p>Screen Indian direct-growth funds on drawdown, returns, ATH distance, concentration and cash.</p>
+      <div class="tags"><span>AMFI NAV</span><span>6-point checklist</span><span>SIP planner</span></div>
     </a>
   </div>
-  <p style="text-align:center;margin-top:22px"><button id="installBtn" type="button" hidden>⬇ Install app</button></p>
+  <div class="foot"><button id="installBtn" type="button" hidden>⬇ Install app</button></div>
 </div>
 <script src="landing.js"></script>
 </body>
