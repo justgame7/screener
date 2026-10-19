@@ -1,5 +1,5 @@
 /* MF Screener service worker. Bump VERSION on every release so installed apps update. */
-const VERSION = 'v7';
+const VERSION = 'v8';
 const SHELL = `mfs-shell-${VERSION}`;
 const RUNTIME = `mfs-runtime-${VERSION}`;
 const ASSETS = [

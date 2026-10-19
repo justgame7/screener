@@ -312,18 +312,8 @@ function renderFund(code){
         h.top.slice(0,5).map(t=>`<div class="q"><div class="qt">${esc(t[0])}</div><b class="mono">${t[1]}%</b></div>`).join('')+
         `<div class="q"><div class="qt"><b>Top 3 total</b><small>futures &amp; cash excluded</small></div><b class="mono">${h.t3}%</b></div>
          <button class="btn ghost" id="shAll" type="button" style="width:100%;margin-top:10px">Show all${h.n?` ${h.n}`:''} holdings →</button>`:'<div class="note">No holdings data.</div>'}</div>
-      <div class="card"><h3>SIP planner <small>how much per month to hit a target</small></h3>
-        <div class="grid g3">
-          <div class="fld"><label class="lbl">Target (₹ lakh)</label><input class="in" type="number" id="p_t" value="100"></div>
-          <div class="fld"><label class="lbl">Years</label><input class="in" type="number" id="p_y" value="15"></div>
-          <div class="fld"><label class="lbl">Return % p.a.</label><input class="in" type="number" id="p_r" value="12"></div>
-        </div>
-        <p id="p_out" style="font-size:15px;margin:12px 0 0"></p></div>
     </div>
   </div>`;
-  const calc=()=>{const s=sip(+$('p_t').value*1e5,+$('p_y').value,+$('p_r').value);
-    $('p_out').innerHTML=isFinite(s)?`Monthly SIP needed: <b class="mono">₹${Math.ceil(s).toLocaleString('en-IN')}</b> <span class="note">(total invested ≈ ₹${Math.round(s*$('p_y').value*12/1e5)} L)</span>`:''};
-  ['p_t','p_y','p_r'].forEach(i=>$(i).oninput=calc);calc();
   $('shClose').onclick=goBack;
   const all=$('shAll');if(all)all.onclick=()=>go('#fund/'+code+'/holdings');
   $('sheet').scrollTop=0;
@@ -439,3 +429,15 @@ let _dp=null;const _ib=$('inst');
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_dp=e;_ib.hidden=false});
 _ib.addEventListener('click',async()=>{if(!_dp)return;_dp.prompt();await _dp.userChoice;_dp=null;_ib.hidden=true});
 window.addEventListener('appinstalled',()=>{_ib.hidden=true;toast('Installed')});
+
+// ---------- SIP planner (header dialog) ----------
+(function(){
+  const dlg=$('sipDlg'),open=()=>{dlg.hidden=false;calc();$('p_t').focus()},close=()=>{dlg.hidden=true};
+  const calc=()=>{const s=sip(+$('p_t').value*1e5,+$('p_y').value,+$('p_r').value);
+    $('p_out').innerHTML=isFinite(s)?`Monthly SIP needed: <b class="mono">₹${Math.ceil(s).toLocaleString('en-IN')}</b> <span class="note">(total invested ≈ ₹${Math.round(s*$('p_y').value*12/1e5)} L)</span>`:''};
+  ['p_t','p_y','p_r'].forEach(i=>$(i).addEventListener('input',calc));
+  $('sipBtn').addEventListener('click',open);
+  $('sipClose').addEventListener('click',close);
+  dlg.addEventListener('click',e=>{if(e.target===dlg)close()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!dlg.hidden)close()});
+})();

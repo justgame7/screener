@@ -213,6 +213,10 @@ h1{margin:2px 0 0;font-size:26px;letter-spacing:-.02em;font-weight:650}
 .chart-host{background:#0a0b0f;border:1px solid var(--line2);border-radius:12px;overflow:hidden}
 .chart-host svg{display:block;width:100%;height:220px}
 .fld{display:grid;gap:5px}
+.sipbtn{font-size:16px;padding:5px 10px}
+.dlg{position:fixed;inset:0;background:rgba(4,5,7,.75);display:flex;align-items:center;justify-content:center;padding:16px;z-index:98}
+.dlg[hidden]{display:none}
+.dlg-box{width:min(520px,100%)}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--s3);border:1px solid var(--line);padding:10px 16px;border-radius:10px;font-size:13px;z-index:99;opacity:0;pointer-events:none;transition:.2s}
 .toast.on{opacity:1}
 [hidden]{display:none!important}
@@ -228,6 +232,7 @@ h1{margin:2px 0 0;font-size:26px;letter-spacing:-.02em;font-weight:650}
     </div>
     <div class="row wrapm">
       <button class="btn ghost sm" id="inst" type="button" title="Install app" aria-label="Install app" hidden>Install app</button>
+      <button class="btn ghost sm sipbtn" id="sipBtn" type="button" title="SIP planner" aria-label="SIP planner">&#129518;</button>
       <button class="btn pri" id="refresh" type="button">Refresh data</button>
     </div>
   </div>
@@ -299,6 +304,17 @@ h1{margin:2px 0 0;font-size:26px;letter-spacing:-.02em;font-weight:650}
 
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
 <div class="ov" id="ov2"><div class="sheet" id="sheet2"></div></div>
+<div class="dlg" id="sipDlg" hidden>
+  <div class="card dlg-box" role="dialog" aria-modal="true" aria-labelledby="sipTitle">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px"><h3 id="sipTitle" style="margin:0">SIP planner <small>how much per month to hit a target</small></h3><button class="btn ghost sm" id="sipClose" type="button" aria-label="Close">&times;</button></div>
+    <div class="grid g3">
+      <div class="fld"><label class="lbl">Target (₹ lakh)</label><input class="in" type="number" id="p_t" value="100"></div>
+      <div class="fld"><label class="lbl">Years</label><input class="in" type="number" id="p_y" value="15"></div>
+      <div class="fld"><label class="lbl">Return % p.a.</label><input class="in" type="number" id="p_r" value="12"></div>
+    </div>
+    <p id="p_out" style="font-size:15px;margin:12px 0 0"></p>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 <script src="data/holdings.js"></script>
 
