@@ -213,6 +213,21 @@ h1{margin:2px 0 0;font-size:26px;letter-spacing:-.02em;font-weight:650}
 .chart-host{background:#0a0b0f;border:1px solid var(--line2);border-radius:12px;overflow:hidden}
 .chart-host svg{display:block;width:100%;height:220px}
 .fld{display:grid;gap:5px}
+.badge{display:inline-block;min-width:18px;margin-left:6px;padding:0 6px;border-radius:99px;background:var(--ac);color:#fff;font:600 11px/18px var(--mono);text-align:center}
+.heart{border:1px solid var(--line);background:var(--s2);color:var(--mu);border-radius:10px;width:36px;height:36px;font-size:18px;line-height:1;display:inline-grid;place-items:center;flex:0 0 auto;padding:0}
+.heart:hover{border-color:var(--fa);color:var(--tx)}
+.heart.on{color:#ff5c70;border-color:rgba(255,92,112,.45);background:var(--dnd)}
+.trow .m1 .heart{margin-left:auto;width:30px;height:30px;font-size:16px}
+.trow.xr{grid-template-columns:auto 1fr auto}
+.trow.xr .rt{grid-column:auto;display:block}
+.xp{display:grid;grid-template-columns:250px minmax(0,1fr);gap:16px;align-items:start}
+.xf{display:grid;gap:12px;position:sticky;top:12px}
+.xf h3{margin:0}
+.sel{font-family:var(--ui);appearance:auto}
+.xchips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.xchips .chip{cursor:pointer;padding:5px 10px}
+.xchips .chip:hover{border-color:var(--ac)}
+@media(max-width:800px){.xp{grid-template-columns:1fr}.xf{position:static;grid-template-columns:1fr 1fr}.xf h3{grid-column:1/-1}}
 .sipbtn{font-size:16px;padding:5px 10px}
 .dlg{position:fixed;inset:0;background:rgba(4,5,7,.75);display:flex;align-items:center;justify-content:center;padding:16px;z-index:98}
 .dlg[hidden]{display:none}
@@ -240,6 +255,8 @@ h1{margin:2px 0 0;font-size:26px;letter-spacing:-.02em;font-weight:650}
 
   <div class="tabs" id="tabs">
     <button data-tab="screen" class="on">Screener</button>
+    <button data-tab="explore">Explore</button>
+    <button data-tab="watchlist">Watchlist<span class="badge" id="wlCount" hidden></span></button>
     <button data-tab="universe">Universe</button>
   </div>
 
@@ -291,6 +308,43 @@ h1{margin:2px 0 0;font-size:26px;letter-spacing:-.02em;font-weight:650}
     </div>
     <div class="tlist" id="list"></div>
     <div style="text-align:center;margin-top:12px"><button class="btn ghost" id="more" type="button" hidden>Show more</button></div>
+  </div>
+
+  <!-- EXPLORE -->
+  <div id="v_explore" hidden>
+    <div class="xp">
+      <aside class="card xf">
+        <h3>Filters</h3>
+        <div class="fld"><label class="lbl" for="x_amc">AMC</label><select class="in sel" id="x_amc"></select></div>
+        <div class="fld"><label class="lbl" for="x_cat">Category</label><select class="in sel" id="x_cat"></select></div>
+        <div class="fld"><label class="lbl" for="x_er">Expense ratio</label><select class="in sel" id="x_er">
+          <option value="">Any</option><option value="0.5">Up to 0.5%</option><option value="1">Up to 1%</option><option value="1.5">Up to 1.5%</option><option value="2">Up to 2%</option></select></div>
+        <div class="fld"><label class="lbl" for="x_aum">AUM</label><select class="in sel" id="x_aum">
+          <option value="">Any</option><option value="500">₹500 Cr+</option><option value="1000">₹1,000 Cr+</option><option value="5000">₹5,000 Cr+</option><option value="10000">₹10,000 Cr+</option></select></div>
+        <div class="fld"><label class="lbl" for="x_age">Fund age</label><select class="in sel" id="x_age">
+          <option value="">Any</option><option value="3">3+ yrs</option><option value="5">5+ yrs</option><option value="10">10+ yrs</option></select></div>
+        <div class="fld"><label class="lbl" for="x_sort">Sort by</label><select class="in sel" id="x_sort">
+          <option value="aum">AUM (high to low)</option><option value="c1">1Y return</option><option value="c3">3Y CAGR</option><option value="c5">5Y CAGR</option>
+          <option value="er">Expense ratio (low to high)</option><option value="name">Name</option></select></div>
+      </aside>
+      <section style="min-width:0">
+        <div class="row wrapm" style="margin-bottom:10px">
+          <span class="note" id="x_count"></span>
+          <span style="flex:1"></span>
+          <button class="btn pri sm" id="x_reset" type="button">Reset filter</button>
+        </div>
+        <div class="xchips" id="x_chips"></div>
+        <input class="in txt" id="x_q" placeholder="Search funds" style="margin-bottom:10px">
+        <div class="tlist" id="x_list"></div>
+        <div style="text-align:center;margin-top:12px"><button class="btn ghost" id="x_more" type="button" hidden>Show more</button></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- WATCHLIST -->
+  <div id="v_watchlist" hidden>
+    <div class="row wrapm" style="margin-bottom:10px"><span class="note" id="w_count"></span></div>
+    <div class="tlist" id="w_list"></div>
   </div>
 
   <!-- UNIVERSE -->

@@ -200,7 +200,7 @@ function compute(){
 }
 const ASC=new Set(['dd','top3','age_'])
 function render(){
-  const onCount=compute();clSummary();
+  const onCount=compute();clSummary();renderExplore();renderWatch();
   const cnt={};ALL.forEach(x=>cnt[x.grp]=(cnt[x.grp]||0)+1);
   const names=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
   // category chips
@@ -255,7 +255,7 @@ function render(){
     return `<div class="trow" data-c="${f.code}">
       <div class="av ${full?'full':''}">${f.conf}/${onCount}</div>
       <div>
-        <div class="m1"><b>${esc(f.name)}</b><span class="chip ac">${esc(f.grp)}</span>${f.unkN?`<span class="chip am">${f.unkN} no data</span>`:''}</div>
+        <div class="m1"><b>${esc(f.name)}</b><span class="chip ac">${esc(f.grp)}</span>${f.unkN?`<span class="chip am">${f.unkN} no data</span>`:''}${heartBtn(f.code)}</div>
         <div class="m2">${esc(f.house||'')} · ${f1(f.age)}y</div>
         <div class="m4"><span>DD ${f1(f.dd)}%</span><span>1Y ${f1(f.c1)}%</span><span>ATH −${f1(f.ath)}%</span><span>Top3 ${f1(f.top3,2)}%</span><span>Cash ${f1(f.cash,2)}%</span></div>
         <div class="m3">${chips}</div>
@@ -282,7 +282,7 @@ function renderFund(code){
     const chip=r==='ok'?'<span class="chip up">Pass</span>':r==='no'?'<span class="chip dn">Fail</span>':r==='unk'?'<span class="chip am">No data</span>':'<span class="chip">Off</span>';
     return `<div class="q ${r==='off'?'dis':''}"><div class="qt">${i+1}. ${c.name} <small>${c.tag} · need ${c.op} ${s.v}${c.unit} · actual <span class="mono" style="color:var(--tx)">${f1(v,2)}${v==null?'':c.unit}</span></small></div>${chip}</div>`}).join('');
   $('sheet').innerHTML=`
-  <div class="sh-head"><button class="btn ghost sm" id="shClose" type="button" aria-label="Back">← Back</button><h2>${esc(x.name)}</h2><span class="chip ${x.conf===onCount&&onCount?'up':''}">${x.conf}/${onCount} checks</span></div>
+  <div class="sh-head"><button class="btn ghost sm" id="shClose" type="button" aria-label="Back">← Back</button><h2>${esc(x.name)}</h2><span class="chip ${x.conf===onCount&&onCount?'up':''}">${x.conf}/${onCount} checks</span>${heartBtn(x.code)}</div>
   <div class="sh-body">
     <div class="col">
       <div class="card"><h3>${esc(x.house)} <small>${esc(x.cat)} · scheme ${x.code}</small></h3>
@@ -315,6 +315,7 @@ function renderFund(code){
     </div>
   </div>`;
   $('shClose').onclick=goBack;
+  $('sheet').querySelector('.heart').onclick=heartClick;
   const all=$('shAll');if(all)all.onclick=()=>go('#fund/'+code+'/holdings');
   $('sheet').scrollTop=0;
 }
@@ -363,14 +364,14 @@ function route(){
   const m=h.match(/^fund\/(\d{1,9})(\/holdings)?$/);
   if(m&&DB.funds[m[1]]){
     const code=m[1];
-    tab('screen');
+    if(!curTab)tab('screen');
     if(curSheet!==code){renderFund(code);curSheet=code;_holdShown=null}
     $('ov').classList.add('open');
     if(m[2]){if(_holdShown!==code){renderHoldings(code);_holdShown=code}$('ov2').classList.add('open')}
     else $('ov2').classList.remove('open');
   }else{
     $('ov2').classList.remove('open');$('ov').classList.remove('open');holdCode=null;curSheet=null;_holdShown=null;
-    tab(h==='universe'?'universe':'screen');
+    tab(TABS.includes(h)?h:'screen');
   }
   document.body.style.overflow=$('ov').classList.contains('open')?'hidden':'';
 }
@@ -387,6 +388,100 @@ function openFund(code){go('#fund/'+code)}
 $('ov').onclick=e=>{if(e.target===$('ov'))goBack()};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('ov').classList.contains('open'))goBack()});
 
+// ---------- watchlist ----------
+const WLK='mfscreener.watch.v1';
+function loadWL(){
+  try{const a=JSON.parse(localStorage.getItem(WLK));
+    return Array.isArray(a)?[...new Set(a.map(String).filter(c=>SAFE_CODE.test(c)))].slice(0,500):[]}
+  catch(e){return[]}
+}
+let WL=loadWL();
+const isWL=c=>WL.includes(String(c));
+function heartBtn(code){const on=isWL(code);
+  return `<button class="heart ${on?'on':''}" type="button" data-w="${code}" aria-pressed="${on}" title="${on?'Remove from watchlist':'Add to watchlist'}" aria-label="${on?'Remove from watchlist':'Add to watchlist'}">${on?'♥':'♡'}</button>`}
+function toggleWL(code){
+  code=String(code);if(!SAFE_CODE.test(code))return;
+  const on=isWL(code);
+  WL=on?WL.filter(c=>c!==code):[...WL,code];
+  try{localStorage.setItem(WLK,JSON.stringify(WL))}catch(e){}
+  toast(on?'Removed from watchlist':'Added to watchlist');
+  render();
+  if(curSheet===code){const hb=$('sheet').querySelector('.heart');if(hb){hb.outerHTML=heartBtn(code);$('sheet').querySelector('.heart').onclick=heartClick}}
+}
+function heartClick(e){e.stopPropagation();toggleWL(e.currentTarget.dataset.w)}
+function rowClick(e){
+  const hb=e.target.closest('.heart');if(hb){toggleWL(hb.dataset.w);return}
+  const r=e.target.closest('.trow');if(r)openFund(r.dataset.c);
+}
+function fundRow(f,onCount){
+  const h=HOLD[f.code]||{},full=onCount&&f.conf===onCount;
+  return `<div class="trow xr" data-c="${f.code}">
+    <div class="av ${full?'full':''}">${f.conf}/${onCount}</div>
+    <div>
+      <div class="m1"><b>${esc(f.name)}</b><span class="chip ac">${esc(f.grp)}</span></div>
+      <div class="m2">${esc(f.house||'')} · ${f1(f.age)}y</div>
+      <div class="m4">${h.aum!=null?`<span>AUM ${inr(h.aum)} Cr</span>`:''}${h.er!=null?`<span>ER ${h.er}%</span>`:''}<span>1Y ${f1(f.c1)}%</span><span>3Y ${f1(f.c3)}%</span><span>5Y ${f1(f.c5)}%</span></div>
+    </div>
+    <div class="rt">${heartBtn(f.code)}</div>
+  </div>`;
+}
+function renderWatch(){
+  const n=WL.length,b=$('wlCount');b.hidden=!n;b.textContent=n;
+  if($('v_watchlist').hidden)return;
+  const onCount=CRITS.filter(c=>cfg(c.id).on).length;
+  const rows=[...WL].reverse().map(c=>ALL.find(f=>f.code==c)).filter(Boolean);
+  $('w_count').textContent=n?`${n} fund${n===1?'':'s'} saved`:'';
+  $('w_list').innerHTML=rows.length?rows.map(f=>fundRow(f,onCount)).join(''):
+    `<div class="card empty"><b>${n?'Loading your funds…':'Your watchlist is empty'}</b>${n?'':'Tap the ♡ on any fund in the Screener or Explore tab to save it here.'}</div>`;
+}
+$('w_list').onclick=rowClick;
+
+// ---------- explore ----------
+const X={amc:'',cat:'',er:'',aum:'',age:'',sort:'aum',q:'',limit:50};
+let _xSig='';
+function renderExplore(){
+  if($('v_explore').hidden)return;
+  const onCount=CRITS.filter(c=>cfg(c.id).on).length;
+  // option lists are rebuilt only when the set of values changes, so an open dropdown isn't reset mid-use
+  const cnt=k=>{const m={};ALL.forEach(f=>{const v=k(f);if(v)m[v]=(m[v]||0)+1});return m};
+  const amcs=cnt(f=>f.house),cats=cnt(f=>f.grp);
+  const sig=JSON.stringify([amcs,cats]);
+  if(sig!==_xSig){
+    _xSig=sig;
+    const opts=(m,all)=>`<option value="">${all}</option>`+Object.keys(m).sort((a,b)=>a.localeCompare(b)).map(k=>`<option value="${esc(k)}">${esc(k)} (${m[k]})</option>`).join('');
+    $('x_amc').innerHTML=opts(amcs,'All AMCs');$('x_cat').innerHTML=opts(cats,'All categories');
+  }
+  for(const k of ['amc','cat','er','aum','age','sort']){const el=$('x_'+k);if(el.value!==X[k])el.value=X[k]}
+  const q=X.q.toLowerCase();
+  const rows=ALL.filter(f=>{
+    const h=HOLD[f.code]||{};
+    if(X.amc&&f.house!==X.amc)return false;
+    if(X.cat&&f.grp!==X.cat)return false;
+    if(X.er&&!(h.er!=null&&h.er<=+X.er))return false;
+    if(X.aum&&!(h.aum!=null&&h.aum>=+X.aum))return false;
+    if(X.age&&f.age<+X.age)return false;
+    if(q&&!(f.name+' '+f.house).toLowerCase().includes(q))return false;
+    return true;
+  });
+  const g=f=>{const h=HOLD[f.code]||{};return X.sort==='aum'?h.aum:X.sort==='er'?h.er:f[X.sort]};
+  if(X.sort==='name')rows.sort((a,b)=>a.name.localeCompare(b.name,undefined,{sensitivity:'base'}));
+  else{const asc=X.sort==='er';
+    rows.sort((a,b)=>{const va=g(a),vb=g(b);if(va==null&&vb==null)return 0;if(va==null)return 1;if(vb==null)return -1;return asc?va-vb:vb-va})}
+  $('x_count').textContent=`${rows.length} result${rows.length===1?'':'s'}`;
+  const lbl={amc:v=>v,cat:v=>v,er:v=>'ER ≤ '+v+'%',aum:v=>'AUM ≥ ₹'+(+v).toLocaleString('en-IN')+' Cr',age:v=>v+'+ yrs'};
+  $('x_chips').innerHTML=Object.keys(lbl).filter(k=>X[k]).map(k=>`<button class="chip ac" type="button" data-x="${k}">${esc(lbl[k](X[k]))} ✕</button>`).join('');
+  $('x_list').innerHTML=rows.length?rows.slice(0,X.limit).map(f=>fundRow(f,onCount)).join(''):
+    `<div class="card empty"><b>No funds match</b>Try removing a filter.</div>`;
+  $('x_more').hidden=rows.length<=X.limit;
+  $('x_more').textContent=`Show more (${rows.length-X.limit} left)`;
+}
+for(const k of ['amc','cat','er','aum','age','sort'])$('x_'+k).onchange=e=>{X[k]=e.target.value;X.limit=50;renderExplore()};
+$('x_q').oninput=e=>{X.q=e.target.value;X.limit=50;renderExplore()};
+$('x_chips').onclick=e=>{const b=e.target.closest('[data-x]');if(!b)return;X[b.dataset.x]='';X.limit=50;renderExplore()};
+$('x_reset').onclick=()=>{Object.assign(X,{amc:'',cat:'',er:'',aum:'',age:'',sort:'aum',q:'',limit:50});$('x_q').value='';renderExplore()};
+$('x_more').onclick=()=>{X.limit+=50;renderExplore()};
+$('x_list').onclick=rowClick;
+
 // ---------- events ----------
 function closeTips(){document.querySelectorAll('.tip').forEach(t=>t.remove());document.querySelectorAll('.info.on').forEach(i=>i.classList.remove('on'))}
 document.addEventListener('click',e=>{
@@ -399,17 +494,21 @@ document.addEventListener('click',e=>{
   b.closest('.kpi').appendChild(t);
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTips()});
+const TABS=['screen','explore','watchlist','universe'];
+let curTab=null;
 function tab(t){
+  curTab=t;
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
-  ['screen','universe'].forEach(n=>$('v_'+n).hidden=n!==t);
+  TABS.forEach(n=>$('v_'+n).hidden=n!==t);
+  if(t==='explore')renderExplore();else if(t==='watchlist')renderWatch();
 }
 $('tabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;
-  if(b.dataset.tab==='universe'){if(location.hash!=='#universe')go('#universe')}
-  else if(location.hash==='#universe')goBack();else tab('screen')};
+  const t=b.dataset.tab;if(t===curTab)return;
+  go(t==='screen'?location.pathname+location.search:'#'+t)};
 function cpOpen(o){$('catpick').classList.toggle('open',o);$('cpToggle').setAttribute('aria-expanded',String(o))}
 $('cpToggle').onclick=()=>cpOpen(!$('catpick').classList.contains('open'));
 $('cats').onclick=e=>{const b=e.target.closest('.cp-opt');if(!b)return;catF=b.dataset.g;limit=100;cpOpen(false);render()};
-$('breakdown').onclick=e=>{const b=e.target.closest('.bar[data-g]');if(!b)return;catF=b.dataset.g;limit=100;cpOpen(false);if(location.hash==='#universe')goBack();else tab('screen');render()};
+$('breakdown').onclick=e=>{const b=e.target.closest('.bar[data-g]');if(!b)return;catF=b.dataset.g;limit=100;cpOpen(false);go(location.pathname+location.search);render()};
 $('showSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;showMode=b.dataset.v;limit=100;
   document.querySelectorAll('#showSeg button').forEach(x=>x.classList.toggle('on',x===b));render()};
 $('sortSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;sortK=b.dataset.k;
@@ -419,7 +518,7 @@ $('f_age').oninput=()=>{limit=100;render()};
 $('unkPass').onchange=render;
 $('allOn').onclick=()=>{DB.cfg={};save();buildCrits();render()};
 $('more').onclick=()=>{limit+=100;render()};
-$('list').onclick=e=>{const r=e.target.closest('.trow');if(r)openFund(r.dataset.c)};
+$('list').onclick=rowClick;
 $('refresh').onclick=()=>loadAll(true);
 buildCrits();render();loadHoldings();loadAll(false);route();
 
