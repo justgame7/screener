@@ -465,7 +465,7 @@ function renderExplore(){
   });
   const g=f=>{const h=HOLD[f.code]||{};return X.sort==='aum'?h.aum:X.sort==='er'?h.er:f[X.sort]};
   if(X.sort==='name')rows.sort((a,b)=>a.name.localeCompare(b.name,undefined,{sensitivity:'base'}));
-  else{const asc=X.sort==='er';
+  else{const asc=X.sort==='er'||X.sort==='ath';
     rows.sort((a,b)=>{const va=g(a),vb=g(b);if(va==null&&vb==null)return 0;if(va==null)return 1;if(vb==null)return -1;return asc?va-vb:vb-va})}
   $('x_count').textContent=`${rows.length} result${rows.length===1?'':'s'}`;
   const lbl={amc:v=>v,cat:v=>v,er:v=>'ER ≤ '+v+'%',aum:v=>'AUM ≥ ₹'+(+v).toLocaleString('en-IN')+' Cr',age:v=>v+'+ yrs'};
