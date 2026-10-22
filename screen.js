@@ -57,6 +57,17 @@ const DONCHIAN_DIRECTION_ENABLED = {
 };
 
 // =========================================================================
+// DONCHIAN TOP 50 SWITCH - a second, separate Donchian alert limited to the
+// top 50 coins by market cap (CoinGecko ranking, stablecoins / wrapped
+// tokens excluded, then matched to CoinDCX futures). It ALWAYS checks all
+// four conditions (long + short x 20/10 + 55/20) - DONCHIAN_SYSTEM_ENABLED /
+// DONCHIAN_DIRECTION_ENABLED above only affect the all-coins alert. Uses the
+// same timeframes (TIMEFRAME_SWITCHES.momentumDisplacementDonchain), and a
+// message is sent ONLY when there is at least one entry. false = skip it.
+// =========================================================================
+const DONCHIAN_TOP50_ENABLED = true;
+
+// =========================================================================
 // RETRACEMENT DIRECTION SWITCHES - which swing-leg direction(s) the 50% /
 // 61.8% retracement screen reports. Same idea as the timeframe switches above.
 //   bull: true  -> latest leg is an UP-leg (swing low, then swing high):
@@ -203,6 +214,18 @@ const DONCHIAN_SYSTEMS = [
 ].filter((s) => DONCHIAN_SYSTEM_ENABLED[s.key]);
 const DONCHIAN_ACTIVE = DONCHIAN_SYSTEMS.length > 0 && (DONCHIAN_DIRECTION_ENABLED.long || DONCHIAN_DIRECTION_ENABLED.short);
 const dcEnabled = (tf) => DONCHIAN_ACTIVE && mdEnabled(tf); // donchian
+
+// Donchian Top 50: always all four conditions, independent of the switches above.
+const ALL_DONCHIAN_SYSTEMS = [
+  { key: '20/10', entry: 20, exit: 10 },
+  { key: '55/20', entry: 55, exit: 20 },
+];
+const ALL_DONCHIAN_DIRECTIONS = { long: true, short: true };
+const dcTop50Enabled = (tf) => DONCHIAN_TOP50_ENABLED && mdEnabled(tf);
+
+// Filled by loadTop50() in main(): Set of base tickers ("BTC", "ETH", ...).
+let top50Set = new Set();
+const isTop50 = (symbol) => top50Set.has(stripSizePrefix(stripUsdt(symbol)).toUpperCase());
 
 const COINDCX_API_BASE = 'https://api.coindcx.com';
 const COINDCX_PUBLIC_BASE = 'https://public.coindcx.com';
@@ -548,8 +571,8 @@ function computeRetracementSignal(symbol, candles, tf) {
 //   short signal: close < lowest low of prior N bars
 // Only entries are reported (the exit lookback M is not used or shown).
 // Same latest-candle convention as the other screens.
-function computeDonchianSignal(symbol, candles, tf) {
-  const needed = Math.max(...DONCHIAN_SYSTEMS.map((s) => s.entry)) + 1;
+function computeDonchianSignal(symbol, candles, tf, systems = DONCHIAN_SYSTEMS, dirs = DONCHIAN_DIRECTION_ENABLED) {
+  const needed = Math.max(...systems.map((s) => s.entry)) + 1;
   if (candles.length < needed) {
     throw new Error(`insufficient bar history (${candles.length}/${needed} bars)`);
   }
@@ -559,17 +582,17 @@ function computeDonchianSignal(symbol, candles, tf) {
   if (!Number.isFinite(price) || !(price > 0)) throw new Error('current price unavailable');
 
   const signals = [];
-  for (const sys of DONCHIAN_SYSTEMS) {
+  for (const sys of systems) {
     const entryWin = candles.slice(-(sys.entry + 1), -1);
     const upper = Math.max(...entryWin.map((c) => c.high));
     const lower = Math.min(...entryWin.map((c) => c.low));
-    if (DONCHIAN_DIRECTION_ENABLED.long && price > upper) {
+    if (dirs.long && price > upper) {
       signals.push({
         system: sys.key, side: 'long', level: upper,
         breakPct: (price - upper) / upper * 100,
       });
     }
-    if (DONCHIAN_DIRECTION_ENABLED.short && price < lower) {
+    if (dirs.short && price < lower) {
       signals.push({
         system: sys.key, side: 'short', level: lower,
         breakPct: (lower - price) / lower * 100,
@@ -612,6 +635,13 @@ async function screenSymbol(symbol, tf) {
       result.donchian = computeDonchianSignal(symbol, candles, tf);
     } catch (e) {
       result.donchianError = e.message;
+    }
+  }
+  if (dcTop50Enabled(tf) && isTop50(symbol)) {
+    try {
+      result.donchianTop50 = computeDonchianSignal(symbol, candles, tf, ALL_DONCHIAN_SYSTEMS, ALL_DONCHIAN_DIRECTIONS);
+    } catch (e) {
+      result.donchianTop50Error = e.message;
     }
   }
   if (retrEnabled(tf)) {
@@ -757,6 +787,19 @@ async function runTimeframeScan(symbols, tf) {
     logErrorBuckets(tf.label, 'Donchian', [...fetchErrored, ...dcErrored]);
   }
 
+  // ---- Donchian Top 50 (all four conditions; no extra volume gate - top 50 are liquid) ----
+  let donchianTop50Hits = [];
+  if (dcTop50Enabled(tf)) {
+    const t50Scanned = scanned.filter((r) => r.donchianTop50);
+    const t50Errored = scanned.filter((r) => r.donchianTop50Error).map((r) => ({ symbol: r.symbol, error: r.donchianTop50Error }));
+    donchianTop50Hits = t50Scanned
+      .filter((r) => r.donchianTop50.passed)
+      .flatMap((r) => r.donchianTop50.signals.map((s) => ({ symbol: r.symbol, price: r.donchianTop50.price, ...s })))
+      .sort((a, b) => b.breakPct - a.breakPct);
+    console.log(`[${tf.label}] Donchian Top 50: ${t50Scanned.length} top-50 symbols scanned ok, ${t50Errored.length} errored, ${donchianTop50Hits.length} signals.`);
+    logErrorBuckets(tf.label, 'Donchian Top 50', t50Errored);
+  }
+
   // ---- 50% / 61.8% retracement ----
   let retracementHits = [];
   if (retrEnabled(tf)) {
@@ -800,7 +843,7 @@ async function runTimeframeScan(symbols, tf) {
     }
   }
 
-  return { momentumHits, dispHits, donchianHits, retracementHits };
+  return { momentumHits, dispHits, donchianHits, donchianTop50Hits, retracementHits };
 }
 
 // ---------------- formatting ----------------
@@ -845,9 +888,9 @@ function fmtDonchianRow(r) {
   return `<b>$${coin}</b> · ${r.side === 'long' ? '+' : '-'}${fmt(r.breakPct, 2)}% · ₮ <code>${fmt(r.price)}</code>`;
 }
 // Grouped: per system (20/10, then 55/20), Long then Short; empty groups omitted.
-function fmtDonchianGroups(hits) {
+function fmtDonchianGroups(hits, systems = DONCHIAN_SYSTEMS) {
   const blocks = [];
-  for (const sys of DONCHIAN_SYSTEMS) {
+  for (const sys of systems) {
     for (const side of [{ key: 'long', arrow: '▲', name: 'Long' }, { key: 'short', arrow: '▼', name: 'Short' }]) {
       const rows = hits.filter((r) => r.system === sys.key && r.side === side.key);
       if (!rows.length) continue;
@@ -943,6 +986,36 @@ async function sendTelegramMessage(text, token, chatId, label = 'Telegram') {
   }
 }
 
+// ---------------- top 50 by market cap ----------------
+// Ranking comes from CoinGecko's public markets endpoint (no key needed).
+// Stablecoins (anything containing "USD", plus DAI) and wrapped / staked
+// tokens are skipped before taking the first 50. If the call fails, the
+// hardcoded fallback list below is used instead so the screen still runs.
+const TOP50_EXCLUDE = /USD|^(DAI|WBTC|WETH|STETH|WSTETH|WEETH|WBETH|CBBTC|CBETH)$/;
+const TOP50_FALLBACK = [
+  'BTC', 'ETH', 'XRP', 'BNB', 'SOL', 'DOGE', 'TRX', 'ADA', 'HYPE', 'LINK',
+  'XLM', 'BCH', 'SUI', 'AVAX', 'LTC', 'HBAR', 'SHIB', 'TON', 'DOT', 'UNI',
+  'AAVE', 'XMR', 'NEAR', 'PEPE', 'ENA', 'ICP', 'ETC', 'APT', 'ONDO', 'ARB',
+  'ALGO', 'ATOM', 'FIL', 'POL', 'VET', 'RENDER', 'TAO', 'BONK', 'WLD', 'INJ',
+  'OP', 'SEI', 'JUP', 'CRV', 'TIA', 'STX', 'FET', 'IMX', 'LDO', 'ARKM',
+];
+
+async function loadTop50() {
+  try {
+    const res = await fetchWithTimeout('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const rows = await res.json();
+    if (!Array.isArray(rows)) throw new Error('unexpected response shape');
+    const tickers = rows.map((r) => String(r.symbol || '').toUpperCase()).filter((t) => t && !TOP50_EXCLUDE.test(t)).slice(0, 50);
+    if (tickers.length < 30) throw new Error(`only ${tickers.length} usable rows`);
+    top50Set = new Set(tickers);
+    console.log(`Top 50 by market cap (CoinGecko): ${tickers.join(', ')}`);
+  } catch (e) {
+    top50Set = new Set(TOP50_FALLBACK);
+    console.error(`CoinGecko top-50 fetch failed (${e.message}) - using hardcoded fallback list.`);
+  }
+}
+
 // ---------------- main ----------------
 async function main() {
   const activeTimeframes = TIMEFRAMES.filter((tf) => mdEnabled(tf) || retrEnabled(tf));
@@ -964,10 +1037,12 @@ async function main() {
   console.log(`Fetching USDT perpetual symbol list (CoinDCX)...`);
   const symbols = await getUSDTPerpetualSymbols();
 
+  if (activeTimeframes.some(dcTop50Enabled)) await loadTop50();
+
   const scans = [];
   for (const tf of activeTimeframes) {
-    const { momentumHits, dispHits, donchianHits, retracementHits } = await runTimeframeScan(symbols, tf);
-    scans.push({ tf, momentumHits, dispHits, donchianHits, retracementHits });
+    const { momentumHits, dispHits, donchianHits, donchianTop50Hits, retracementHits } = await runTimeframeScan(symbols, tf);
+    scans.push({ tf, momentumHits, dispHits, donchianHits, donchianTop50Hits, retracementHits });
   }
 
   const stamp = formatIST(new Date());
@@ -1002,6 +1077,15 @@ async function main() {
       `sides: ${[DONCHIAN_DIRECTION_ENABLED.long && 'long', DONCHIAN_DIRECTION_ENABLED.short && 'short'].filter(Boolean).join(' + ')}`
     : null;
 
+  // Donchian Top 50: only timeframes WITH entries are listed, and no message
+  // at all (null) when there are no entries anywhere.
+  const t50Scans = scans.filter((s) => dcTop50Enabled(s.tf) && s.donchianTop50Hits.length);
+  const donchianTop50Message = t50Scans.length
+    ? `<b>Donchian Top 50 screener (CoinDCX) — ${stamp}</b>\n\n` +
+      t50Scans.map((s) => `<b>— ${s.tf.label} —</b>\n<b>Breakouts (${s.donchianTop50Hits.length})</b>\n\n${fmtDonchianGroups(s.donchianTop50Hits, ALL_DONCHIAN_SYSTEMS)}`).join('\n\n') + '\n\n' +
+      `Top 50 by market cap · close beyond the prior entry-bar high/low (20 or 55 bars) · % = distance past the channel · long + short`
+    : null;
+
   const retracementMessage = retrScans.length
     ? `<b>50% / 61.8% retracement screener (CoinDCX) — ${stamp}</b>\n\n` +
       retrScans.map((s) => `<b>— ${s.tf.label} —</b>\n` + (s.retracementHits.length
@@ -1011,7 +1095,7 @@ async function main() {
       `legs: ${[RETRACEMENT_DIRECTION_ENABLED.bull && 'bull', RETRACEMENT_DIRECTION_ENABLED.bear && 'bear'].filter(Boolean).join(' + ')}`
     : null;
 
-  for (const m of [momentumMessage, displacementMessage, donchianMessage, retracementMessage]) {
+  for (const m of [momentumMessage, displacementMessage, donchianMessage, donchianTop50Message, retracementMessage]) {
     if (m) console.log('\n' + m.replace(/<\/?[a-z]+>/g, ''));
   }
 
@@ -1029,6 +1113,9 @@ async function main() {
   }
   if (donchianMessage) {
     sends.push({ label: 'Donchian', text: donchianMessage, token: process.env.DONCHIAN_TELEGRAM_BOT_TOKEN, chatId: process.env.DONCHIAN_TELEGRAM_CHAT_ID });
+  }
+  if (donchianTop50Message) {
+    sends.push({ label: 'Donchian Top 50', text: donchianTop50Message, token: process.env.DONCHIAN_TOP50_TELEGRAM_BOT_TOKEN, chatId: process.env.DONCHIAN_TOP50_TELEGRAM_CHAT_ID });
   }
   if (retracementMessage) {
     sends.push({ label: 'Retracement', text: retracementMessage, token: process.env.RETRACEMENT_TELEGRAM_BOT_TOKEN, chatId: process.env.RETRACEMENT_TELEGRAM_CHAT_ID });

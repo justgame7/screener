@@ -48,4 +48,7 @@ jobs:
           # Donchian 20/10 & 55/20 alerts - new, separate bot/chat.
           DONCHIAN_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN_4 }}
           DONCHIAN_TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # Donchian Top 50 alerts - new, separate bot/chat (sent only when there are entries).
+          DONCHIAN_TOP50_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN_5 }}
+          DONCHIAN_TOP50_TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: node screen.js
