@@ -1,0 +1,51 @@
+# TradeSphere: Donchian / Ichimoku / CHoCH / BOS alerts.
+# Moved here from the (now private) TradeSphere repo so it runs on free public-repo Actions minutes.
+# Scripts live in tradesphere/scripts on main; the JSON output is committed to the
+# `tradesphere-data` branch (checked out into tradesphere/data), never to main.
+name: TradeSphere alerts
+on:
+  # Triggered every 5 minutes by cron-job.org via the workflow_dispatch API (GitHub's own schedule was
+  # too unreliable, so there is deliberately no `schedule:` here).
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force a full scan even if no new candle has closed'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: ts-alerts
+  cancel-in-progress: false
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: tradesphere-data
+          path: tradesphere/data
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build alerts
+        env:
+          FORCE: ${{ inputs.force && '1' || '' }}
+        run: node tradesphere/scripts/donchian-alerts.js
+
+      - name: Commit to tradesphere-data
+        working-directory: tradesphere/data
+        run: |
+          git config user.name "bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add donchian-alerts.json alerts-history.json top50.json
+          git diff --cached --quiet && exit 0
+          git commit -m "update alerts"
+          for i in 1 2 3 4 5; do
+            if git pull --rebase -X theirs origin tradesphere-data && git push origin HEAD:tradesphere-data; then exit 0; fi
+            git rebase --abort 2>/dev/null || true
+            sleep $((RANDOM % 10 + 3))
+          done
+          echo "push failed after retries"; exit 1

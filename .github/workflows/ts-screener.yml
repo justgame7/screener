@@ -1,0 +1,25 @@
+# TradeSphere: Ichimoku breakout screener -> Telegram. Writes no data.
+# Needs repo secrets TS_TELEGRAM_BOT_TOKEN and TS_TELEGRAM_CHAT_ID (same values as
+# TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID in the TradeSphere repo).
+name: TradeSphere Ichimoku screener
+on:
+  # Triggered by cron-job.org via the workflow_dispatch API
+  # (GitHub's native schedule was too unreliable).
+  workflow_dispatch: {}
+concurrency:
+  group: ts-screener
+  cancel-in-progress: false
+jobs:
+  screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'   # screen.js needs Node 20+ for built-in fetch
+      - name: Run screener
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TS_TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TS_TELEGRAM_CHAT_ID }}
+        run: node tradesphere/scripts/screen.js
