@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27T20:55:25Z",
+  "updated": "2026-10-27T21:01:12Z",
   "markets": [
     {
       "t": "KXFED-27APR-T6.00",
@@ -646,7 +646,7 @@
       "b": "0.6500",
       "a": "0.9500",
       "l": "0.6500",
-      "v": "10188.26",
+      "v": "10251.26",
       "title": "Will the upper bound of the federal funds rate be above 4.25% following the Fed's Dec 8, 2027 meeting?"
     },
     {
@@ -2071,7 +2071,7 @@
       "s": "Above 4.00%",
       "k": 4,
       "c": "2027-04-28T17:55:00Z",
-      "b": "0.5500",
+      "b": "0.5300",
       "a": "0.9500",
       "l": "0.8800",
       "v": "20860.87",
@@ -2251,7 +2251,7 @@
       "s": "Above 0.25%",
       "k": 0.25,
       "c": "2027-04-28T17:55:00Z",
-      "b": "0.9800",
+      "b": "0.9400",
       "a": "0.9900",
       "l": "0.9900",
       "v": "2223.85",
@@ -2743,10 +2743,10 @@
       "s": "Above 4.50%",
       "k": 4.5,
       "c": "2026-12-09T18:55:00Z",
-      "b": "0.0200",
+      "b": "0.0300",
       "a": "0.0400",
       "l": "0.0400",
-      "v": "194792.01",
+      "v": "194848.01",
       "title": "Will the upper bound of the federal funds rate be above 4.50% following the Fed's Dec 9, 2026 meeting?"
     },
     {
@@ -2769,8 +2769,8 @@
       "c": "2026-12-09T18:55:00Z",
       "b": "0.8500",
       "a": "0.8600",
-      "l": "0.8400",
-      "v": "66659.18",
+      "l": "0.8500",
+      "v": "66661.18",
       "title": "Will the upper bound of the federal funds rate be above 4.00% following the Fed's Dec 9, 2026 meeting?"
     },
     {
@@ -2782,7 +2782,7 @@
       "b": "0.9700",
       "a": "0.9800",
       "l": "0.9700",
-      "v": "67714.24",
+      "v": "67715.24",
       "title": "Will the upper bound of the federal funds rate be above 3.75% following the Fed's Dec 9, 2026 meeting?"
     },
     {
@@ -2902,7 +2902,7 @@
       "b": "0.0500",
       "a": "0.0600",
       "l": "0.0500",
-      "v": "293850.77",
+      "v": "293851.77",
       "title": "Will the upper bound of the federal funds rate be above 4.00% following the Fed's Oct 28, 2026 meeting?"
     },
     {
