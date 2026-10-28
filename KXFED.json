@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-28T12:05:26Z",
+  "updated": "2026-10-28T12:10:34Z",
   "markets": [
     {
       "t": "KXFED-27APR-T6.00",
@@ -584,7 +584,7 @@
       "k": 5.5,
       "c": "2027-12-08T18:55:00Z",
       "b": "0.0000",
-      "a": "0.2200",
+      "a": "0.2000",
       "l": "0.2200",
       "v": "25417.00",
       "title": "Will the upper bound of the federal funds rate be above 5.50% following the Fed's Dec 8, 2027 meeting?"
@@ -2914,7 +2914,7 @@
       "b": "0.9900",
       "a": "1.0000",
       "l": "0.9900",
-      "v": "36971.02",
+      "v": "37064.53",
       "title": "Will the upper bound of the federal funds rate be above 3.75% following the Fed's Oct 28, 2026 meeting?"
     },
     {
