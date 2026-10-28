@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-28T02:30:53Z",
+  "updated": "2026-10-28T02:35:22Z",
   "markets": [
     {
       "t": "KXFED-27APR-T6.00",
@@ -2120,7 +2120,7 @@
       "k": 3,
       "c": "2027-04-28T17:55:00Z",
       "b": "0.8800",
-      "a": "0.9900",
+      "a": "0.9800",
       "l": "0.9800",
       "v": "16236.53",
       "title": "Will the upper bound of the federal funds rate be above 3.00% following the Fed's Apr 28, 2027 meeting?"
@@ -2156,7 +2156,7 @@
       "k": 2.25,
       "c": "2027-04-28T17:55:00Z",
       "b": "0.9600",
-      "a": "0.9900",
+      "a": "0.9800",
       "l": "0.9900",
       "v": "6210.18",
       "title": "Will the upper bound of the federal funds rate be above 2.25% following the Fed's Apr 28, 2027 meeting?"
@@ -2168,7 +2168,7 @@
       "k": 2,
       "c": "2027-04-28T17:55:00Z",
       "b": "0.9400",
-      "a": "0.9900",
+      "a": "0.9800",
       "l": "0.9800",
       "v": "7448.60",
       "title": "Will the upper bound of the federal funds rate be above 2.00% following the Fed's Apr 28, 2027 meeting?"
@@ -2180,7 +2180,7 @@
       "k": 1.75,
       "c": "2027-04-28T17:55:00Z",
       "b": "0.9600",
-      "a": "0.9900",
+      "a": "0.9800",
       "l": "0.9800",
       "v": "3363.46",
       "title": "Will the upper bound of the federal funds rate be above 1.75% following the Fed's Apr 28, 2027 meeting?"
@@ -2192,7 +2192,7 @@
       "k": 1.5,
       "c": "2027-04-28T17:55:00Z",
       "b": "0.9300",
-      "a": "0.9900",
+      "a": "0.9800",
       "l": "0.9900",
       "v": "5384.32",
       "title": "Will the upper bound of the federal funds rate be above 1.50% following the Fed's Apr 28, 2027 meeting?"
