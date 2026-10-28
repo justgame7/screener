@@ -35,10 +35,8 @@ const SERIES = [
     why: 'Odds the Fed has to tighten again. Rising hike odds are one of the clearest macro headwinds for crypto.' },
   { s: 'KXEMERCUTS', name: 'Emergency rate cut', theme: 'fed', imp: 2, unit: null,
     why: 'Tail risk: an emergency cut usually means a market crisis first (risk-off), then a flood of liquidity.' },
-  { s: 'KXBALANCESHEET', name: 'Fed balance sheet', theme: 'fed', imp: 2, unit: null,
+  { s: 'KXBALANCESHEET', name: 'Fed balance sheet', theme: 'fed', imp: 2, unit: 'T',
     why: 'Balance-sheet growth adds dollar liquidity to the system, which crypto tends to follow with a lag.' },
-  { s: 'KXQTEND', name: 'QT ending', theme: 'fed', imp: 2, unit: null,
-    why: 'Quantitative tightening drains liquidity; its end removes a steady headwind for risk assets.' },
 
   // ---- Inflation ----
   { s: 'KXCPI', name: 'CPI (m/m)', theme: 'infl', imp: 3, unit: '%',
@@ -67,19 +65,19 @@ const SERIES = [
     why: 'Business-cycle gauge; crypto has tracked the ISM cycle closely in past cycles.' },
 
   // ---- Rates, dollar & markets ----
-  { s: 'KXTNOTEW', name: '10Y yield (week)', theme: 'mkts', imp: 2, unit: '%',
+  { s: 'KXTNOTEW', alt: ['KXNOTE10W', 'TNOTEW', 'KXTNOTED', 'KXUST10A'], name: '10Y yield (week)', theme: 'mkts', imp: 2, unit: '%', pick: 'vol', withinH: 24 * 8,
     why: 'Higher Treasury yields raise the opportunity cost of holding non-yielding BTC.' },
-  { s: 'KXNOTE10M', name: '10Y yield (month)', theme: 'mkts', imp: 2, unit: '%',
+  { s: 'KXNOTE10M', alt: ['KXNOTE10', 'KXTNOTE'], name: '10Y yield (month)', theme: 'mkts', imp: 2, unit: '%',
     why: 'Month-end view on long rates; a falling 10Y usually supports risk assets.' },
-  { s: 'KXINXW', name: 'S&P 500 (week)', theme: 'mkts', imp: 2, unit: 'pts', pick: 'vol', withinH: 24 * 8,
+  { s: 'KXINXW', alt: ['KXINXWD', 'KXINX', 'KXINXAB', 'KXINXU', 'KXINXM'], name: 'S&P 500', theme: 'mkts', imp: 2, unit: 'pts', pick: 'vol', withinH: 24 * 8,
     why: 'BTC has traded with a strong positive correlation to US stocks; equity risk-off usually drags crypto.' },
-  { s: 'KXNASDAQ100W', name: 'Nasdaq-100 (week)', theme: 'mkts', imp: 2, unit: 'pts', pick: 'vol', withinH: 24 * 8,
+  { s: 'KXNASDAQ100W', alt: ['KXNASDAQ100WD', 'KXNASDAQ100', 'KXNASDAQ100U', 'KXNASDAQ100M'], name: 'Nasdaq-100', theme: 'mkts', imp: 2, unit: 'pts', pick: 'vol', withinH: 24 * 8,
     why: 'Tech/growth stocks are the closest equity cousin of crypto by risk profile.' },
-  { s: 'KXUSDJPYW', name: 'USD/JPY (week)', theme: 'mkts', imp: 1, unit: 'fx',
+  { s: 'KXUSDJPYW', alt: ['KXUSDJPYAW', 'KXUSDJPY', 'KXUSDJPYD', 'KXUSDJPYAD', 'KXUSDJPYH'], name: 'USD/JPY', theme: 'mkts', imp: 1, unit: 'fx', pick: 'vol', withinH: 24 * 8,
     why: 'A sharp yen rally can unwind the carry trade (as in Aug 2024) and force selling across risk assets.' },
-  { s: 'KXGOLD', name: 'Gold (daily)', theme: 'mkts', imp: 1, unit: '$', pick: 'vol', withinH: 36,
+  { s: 'KXGOLD', alt: ['GOLD', 'KXGOLDW', 'KXGOLDMON', 'KXGOLDY'], name: 'Gold', theme: 'mkts', imp: 1, unit: '$', pick: 'vol', withinH: 36,
     why: 'Gold is the store-of-value benchmark BTC competes with; the two often move on the same debasement theme.' },
-  { s: 'KXOILW', name: 'Oil (week)', theme: 'mkts', imp: 1, unit: '$',
+  { s: 'KXOILW', alt: ['KXWTIW', 'KXWTI', 'KXOIL', 'WTIW'], name: 'Oil (WTI)', theme: 'mkts', imp: 1, unit: '$', pick: 'vol', withinH: 24 * 8,
     why: 'Oil feeds inflation expectations, and with them the rate path.' },
 
   // ---- Crypto prices ----
@@ -91,7 +89,7 @@ const SERIES = [
     why: 'Expected SOL settlement range for the day.' },
   { s: 'KXXRPD', name: 'XRP daily', theme: 'crypto', imp: 1, unit: '$', pick: 'vol', withinH: 36,
     why: 'Expected XRP settlement range for the day.' },
-  { s: 'KXBTCMAXM', name: 'BTC high this month', theme: 'crypto', imp: 2, unit: '$',
+  { s: 'KXBTCMAXM', alt: ['KXBTCMAXMON'], name: 'BTC high this month', theme: 'crypto', imp: 2, unit: '$',
     why: 'Odds BTC touches each level before month-end: the market-implied upside.' },
   { s: 'KXBTCMINMON', name: 'BTC low this month', theme: 'crypto', imp: 2, unit: '$',
     why: 'Odds BTC trades down to each level before month-end: the market-implied downside.' },
@@ -121,14 +119,16 @@ const SERIES = [
     why: 'Regulated stablecoin issuance grows the on-chain dollar base that flows into crypto.' },
 ];
 
-// Polymarket: crypto-tagged events, ranked by 24h volume. Short-dated price coin-flips are skipped
-// (Kalshi already covers prices); what is left is mostly policy, regulation, ETFs, reserves and
-// big multi-month crypto questions.
+// Polymarket: crypto-tagged events ranked by 24h volume, split into two buckets.
+//  - policy: regulation, ETFs, reserves, stablecoins, big holders, government action
+//  - price:  only the big BTC/ETH "what price will it hit this month/year" questions and ATH odds
+// Token-launch FDV bets, public sales and short-dated price ladders (Kalshi covers those) are dropped.
 const POLY_TAGS = ['crypto'];
-const POLY_MAX = 24;
-const POLY_MIN_DAYS = 3;
-const POLY_SKIP = /\bup or down\b|\b(5|15)\s*(min|minute)/i;
-const POLY_PRICE = /\b(price|above|below|reach|hit|dip|ath|all[- ]time high|\$\s?\d)/i;
+const POLY_PAGES = 3; // 100 events per page
+const POLY_MAX_POLICY = 14, POLY_MAX_PRICE = 6;
+const POLY_JUNK = /\bfdv\b|public sale|commitments|launch a token|token launch|airdrop|\bflip\b|up or down|\b(5|15)\s*(min|minute)/i;
+const POLY_POLICY = /\b(act|bill|law|sec|cftc|etfs?|regulat\w*|ban|approv\w*|reserve|stablecoins?|senate|congress|trump|treasury|tax\w*|fed|strategy|microstrategy|saylor|tether|coinbase|binance|blackrock|government|country|countries|court|lawsuit|sanction\w*|cbdc|executive order|halving)\b/i;
+const POLY_PRICE = /^(what price will (bitcoin|ethereum) hit in\b|(bitcoin|ethereum) all[- ]time high)/i;
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const num = v => { const n = typeof v === 'string' ? parseFloat(v) : v; return Number.isFinite(n) ? n : null; };
@@ -225,9 +225,14 @@ function shapeOutcomes(outs) {
     below.sort((a, b) => b.k2 - a.k2);
     return { kind: 'below', out: trimLadder(below) };
   }
-  if (between.length >= 3 && between.length >= outs.length * 0.6) {
-    between.sort((a, b) => a.k - b.k);
-    return { kind: 'range', out: between.filter(o => o.p >= 0.005 || o.v24 > 0).slice(0, 40) };
+  if (between.length >= 2 && between.length >= outs.length * 0.5) {
+    // Buckets ("exactly 1 cut") plus open-ended tails ("3 or more"). x = numeric position of each
+    // bucket so the page can compute an expected value.
+    const xOf = o => o.st === 'between' ? (o.k + o.k2) / 2
+      : /^greater/.test(o.st || '') && o.k != null ? o.k
+      : /^less/.test(o.st || '') && o.k2 != null ? o.k2 : null;
+    const rows = outs.map(o => ({ ...o, x: xOf(o) })).filter(o => o.x != null).sort((a, b) => a.x - b.x);
+    return { kind: 'range', out: rows.filter(o => o.p >= 0.005 || o.v24 > 0).slice(0, 40) };
   }
   outs.sort((a, b) => b.p - a.p);
   return { kind: 'multi', out: outs.slice(0, 12) };
@@ -248,9 +253,17 @@ async function buildKalshi(diag) {
   for (const cfg of SERIES) {
     const d = diag[cfg.s] = { ok: false, markets: 0, events: 0 };
     try {
-      const ms = await seriesMarkets(cfg.s);
+      // Kalshi keeps several variants of some series (weekly/daily, old/new prefix); use the first
+      // ticker that still has open markets.
+      let ms = [], used = cfg.s;
+      for (const t of [cfg.s, ...(cfg.alt || [])]) {
+        ms = await seriesMarkets(t);
+        if (ms.some(m => Date.parse(m.close_time) > now)) { used = t; break; }
+        await sleep(300);
+      }
       d.markets = ms.length;
-      const titles = ms.length ? await seriesEventTitles(cfg.s) : new Map();
+      if (used !== cfg.s) d.used = used;
+      const titles = ms.length ? await seriesEventTitles(used) : new Map();
       const byEv = new Map();
       for (const m of ms) {
         const c = Date.parse(m.close_time);
@@ -275,7 +288,7 @@ async function buildKalshi(diag) {
         const first = e.list[0];
         events.push({
           id: e.id, src: 'kalshi', series: cfg.s, name: cfg.name, theme: cfg.theme, imp: cfg.imp, unit: cfg.unit, why: cfg.why,
-          url: 'https://kalshi.com/markets/' + cfg.s.toLowerCase(),
+          url: 'https://kalshi.com/markets/' + used.toLowerCase(),
           title: clean(titles.get(e.id) || first.title || cfg.name), close: new Date(e.close).toISOString(),
           kind: shaped.kind, out: shaped.out,
           vol: Math.round(e.vol), vol24: Math.round(e.v24),
@@ -304,15 +317,24 @@ async function buildPolymarket(diag) {
     try {
       const tag = await getJSON(`${POLY}/tags/slug/${slug}`);
       if (!tag || tag.__404 || !tag.id) throw new Error('tag not found');
-      const list = await getJSON(`${POLY}/events?tag_id=${tag.id}&active=true&closed=false&order=volume24hr&ascending=false&limit=150`);
-      const arr = Array.isArray(list) ? list : (list.data || list.events || []);
+      const arr = [];
+      for (let page = 0; page < POLY_PAGES; page++) {
+        const list = await getJSON(`${POLY}/events?tag_id=${tag.id}&active=true&closed=false&order=volume24hr&ascending=false&limit=100&offset=${page * 100}`);
+        const got = Array.isArray(list) ? list : (list.data || list.events || []);
+        arr.push(...got);
+        if (got.length < 100) break;
+        await sleep(400);
+      }
       d.fetched = arr.length;
+      const bucket = e => { const t = e.title || ''; return POLY_JUNK.test(t) ? null : POLY_PRICE.test(t) ? 'price' : POLY_POLICY.test(t) ? 'policy' : null; };
       const cands = arr
-        .filter(e => e && !seen.has(e.id) && !POLY_SKIP.test(e.title || ''))
-        .filter(e => { const end = Date.parse(e.endDate); return !(end > 0) || end - now > POLY_MIN_DAYS * 864e5; })
+        .filter(e => e && !seen.has(e.id) && bucket(e))
+        .filter(e => { const end = Date.parse(e.endDate); return !(end > 0) || end - now > 864e5; })
         .sort((a, b) => (num(b.volume24hr) || 0) - (num(a.volume24hr) || 0));
+      const taken = { policy: 0, price: 0 };
       for (const e of cands) {
-        if (events.length >= POLY_MAX) break;
+        const b = bucket(e);
+        if (taken[b] >= (b === 'policy' ? POLY_MAX_POLICY : POLY_MAX_PRICE)) continue;
         const ms = (e.markets || []).filter(m => m.active !== false && m.closed !== true);
         const out = [];
         for (const m of ms) {
@@ -332,11 +354,12 @@ async function buildPolymarket(diag) {
         if (!out.length) continue;
         out.sort((a, b) => b.p - a.p);
         seen.add(e.id);
+        taken[b]++;
         const title = clean(e.title || (ms[0] && ms[0].question) || 'Polymarket event');
         events.push({
           id: 'pm-' + e.id, src: 'polymarket', series: 'PM:' + (e.slug || e.id),
-          name: POLY_PRICE.test(title) ? 'Crypto price question' : 'Crypto policy & events',
-          theme: POLY_PRICE.test(title) ? 'crypto' : 'policy',
+          name: b === 'price' ? 'Crypto price question' : 'Crypto policy & events',
+          theme: b === 'price' ? 'crypto' : 'policy',
           imp: (num(e.volume24hr) || 0) > 250000 ? 2 : 1, unit: null, why: null,
           url: 'https://polymarket.com/event/' + (e.slug || ''),
           title, close: e.endDate ? new Date(e.endDate).toISOString() : null,
