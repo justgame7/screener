@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-28T03:05:39Z",
+  "updated": "2026-10-28T03:10:50Z",
   "markets": [
     {
       "t": "KXU3-26NOV-T5.0",
@@ -80,7 +80,7 @@
       "k": 4.4,
       "c": "2026-12-04T13:29:00Z",
       "b": "0.0600",
-      "a": "0.4900",
+      "a": "0.0700",
       "l": "0.5000",
       "v": "1179.24",
       "title": "Will the unemployment rate (U-3) be above 4.4% in November?"
@@ -104,7 +104,7 @@
       "k": 4.2,
       "c": "2026-12-04T13:29:00Z",
       "b": "0.2000",
-      "a": "0.9300",
+      "a": "0.2300",
       "l": "0.2100",
       "v": "4338.10",
       "title": "Will the unemployment rate (U-3) be above 4.2% in November?"
@@ -116,9 +116,9 @@
       "k": 4.1,
       "c": "2026-12-04T13:29:00Z",
       "b": "0.4500",
-      "a": "0.9100",
+      "a": "0.5500",
       "l": "0.4500",
-      "v": "3502.09",
+      "v": "3504.09",
       "title": "Will the unemployment rate (U-3) be above 4.1% in November?"
     },
     {
@@ -128,7 +128,7 @@
       "k": 4,
       "c": "2026-12-04T13:29:00Z",
       "b": "0.7400",
-      "a": "0.9500",
+      "a": "0.7600",
       "l": "0.7400",
       "v": "1913.16",
       "title": "Will the unemployment rate (U-3) be above 4.0% in November?"
@@ -140,7 +140,7 @@
       "k": 3.9,
       "c": "2026-12-04T13:29:00Z",
       "b": "0.8200",
-      "a": "0.9700",
+      "a": "0.8600",
       "l": "0.8200",
       "v": "1497.80",
       "title": "Will the unemployment rate (U-3) be above 3.9% in November?"
