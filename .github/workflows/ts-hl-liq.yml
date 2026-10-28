@@ -1,12 +1,9 @@
 # TradeSphere: Hyperliquid liquidation snapshot. Output goes to the `tradesphere-data` branch.
 name: TradeSphere hl-liq snapshot
 on:
-  # Trigger from cron-job.org via the workflow_dispatch API like the other
-  # data workflows (GitHub's native schedule is unreliable); the cron below is
-  # only a backstop.
+  # Triggered every 30 minutes by cron-job.org via the workflow_dispatch API
+  # (GitHub's native schedule was too unreliable, so there is no `schedule:` here).
   workflow_dispatch: {}
-  schedule:
-    - cron: '*/30 * * * *'
 permissions:
   contents: write
 concurrency:
